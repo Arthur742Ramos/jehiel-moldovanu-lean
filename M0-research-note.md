@@ -87,5 +87,35 @@ not exploit this. The 4-cycle exposes the inconsistency.
 
 ## Prior art
 
-Palomar registry search performed 2026-10-02 (browser task): [results pending].
-This records only that dated registry search.
+Palomar registry search performed 2026-10-02 for "jehiel", "moldovanu",
+"interdependent valuations", "multidimensional": zero results on all four
+queries. (Sanity check: "mechanism design" returns 1 result, Arthur's
+revenue-equivalence-lean, confirming the registry has mechanism-design
+content but nothing Jehiel-Moldovanu-related.) This records only that dated
+registry search.
+
+## M1 findings (2026-10-02)
+
+- `JM/Defs.lean` written (Codex) and verified to build green (`lake build`,
+  3000 jobs, exit 0; only the intended theorem-level `sorry` plus a
+  deprecated-import warning). Concrete parameters fixed:
+  - `valA(true) = 1` (gap 1), `valB(true) = 2` (gap 2), coefficient `c = 1`.
+  - Agent i's value when winning: `a_i + b_{other(i)}` (loser gets 0).
+  - `interimUtil` evaluates value at the true profile, allocation/payment at
+    the reported profile (AGV pattern adapted).
+- The useful cycle is the REVERSE of the M0 proposal:
+  `(F,F) -> (F,T) -> (T,T) -> (T,F) -> (F,F)` (indexed cyclically by `Fin 4`).
+- Efficiency ties occur at exactly 4 diagonal profiles
+  `(t, t)` for `t` in `(F,F), (F,T), (T,T), (T,F)` (equal winning values);
+  all other profiles have a forced winner.
+- `scripts/verify_cycle.py` (written independently, not by Codex) enumerates
+  all 2^4 = 16 efficient tie-breaking rules and confirms:
+  `S_0 + S_1 = -1/2` for EVERY efficient rule, where `S_i` is agent i's
+  value-only truthful-minus-deviation cycle sum under uniform priors.
+- Proof plan (M2-M4): BIC gives `S_i(p) >= 0` per agent (each cycle term is a
+  truthful-vs-deviation comparison); transfer terms telescope around the
+  closed cycle (cyclic reindexing), so `S_i(p) = S_i(0)`; the computation
+  gives `S_0(0) + S_1(0) = -1/2 < 0`, contradiction. In Lean the last step
+  is a 16-way case split on the diagonal ties plus `decide`/`norm_num`
+  (all profile evaluations are concrete). Budget balance is a hypothesis but
+  is not needed for the contradiction.
