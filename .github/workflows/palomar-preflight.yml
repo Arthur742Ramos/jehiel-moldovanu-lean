@@ -19,7 +19,7 @@ jobs:
       repository: ${{ github.repository }}
       commit: ${{ github.sha }}
       pipeline_commit: 65f0154ed776cd26c224254aa57b379137f28b0d
-      request_id: jmfront00001
+      request_id: jmcont000001
       mode: full
       execution_profile: palomar-standard-v1
       options: '{"comparator_config_path":"comparator.json","formalization_metadata_path":"formalization.yaml","authorization_relationship":"I am a responsible author or maintainer"}'

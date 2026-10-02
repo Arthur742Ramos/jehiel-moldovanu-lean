@@ -1,122 +1,149 @@
-version: "v0.4"
+version: v0.4
 project:
-  name: "Sharp finite welfare-incentive frontier with interdependent values"
-  description: >-
-    A sharp parametric finite extension of the Jehiel-Moldovanu example:
-    two agents, one object, independent uniform binary two-dimensional
-    types, own-value gap a>0 and external-value gap b>a. Every randomized
-    epsilon-BIC mechanism with ex-ante welfare loss D satisfies
-    (b-a)*epsilon+2*a*D >= a*(b-a)/8. Explicit ex-post budget-balanced
-    mechanisms attain every frontier point. For nonnegative error and loss
-    budgets this inequality exactly characterizes feasibility. Exact BIC
-    has minimum expected welfare loss (b-a)/16. A reusable balanced-flow
-    certificate theorem covers arbitrary finite own types, opposing states,
-    outcomes, payoff tables and lotteries when its explicit pointwise
-    certificate hypothesis holds. The old fixed deterministic example is
-    retained as a corollary. This is not the original paper's continuous
-    generic congruence theorem; no mathematical novelty claim is made.
+  name: Continuous binary implementation congruence and sharp finite welfare frontier
+  description: 'A general two-alternative implementation characterization on own-type domains containing
+    an open ball: affine private and social valuation differences, nonzero social linear form, one active
+    welfare cut, and a fixed independent opposing probability law force nonnegative coefficient alignment.
+    Arbitrary measurable efficient lotteries have integrable Bayesian incentive compatible transfers exactly
+    under alignment, with explicit ex-post truthful-opponent transfers and a measurable efficient allocation
+    witness. Arbitrary distributions including atoms are covered. A genuine independent uniform-square
+    auction model rules out efficiency even under only agent 0 incentive compatibility for every a,b>0.
+    The separately proved finite sharp welfare/error frontier and original example corollary are retained.
+    This does not formalize arbitrary-alternative Theorem 4.3 or genericity, and makes no novelty claim.'
   authors:
-    - "Arthur Freitas Ramos"
-    - "David Barros Hulak"
-    - "Ruy Jose Guerra Barretto de Queiroz"
+  - Arthur Freitas Ramos
+  - David Barros Hulak
+  - Ruy Jose Guerra Barretto de Queiroz
   responsible_maintainers:
-    - "Arthur Freitas Ramos"
-    - "David Barros Hulak"
-    - "Ruy Jose Guerra Barretto de Queiroz"
-  license: "BSD-3-Clause"
+  - Arthur Freitas Ramos
+  - David Barros Hulak
+  - Ruy Jose Guerra Barretto de Queiroz
+  license: BSD-3-Clause
 repository:
-  role: "substantive-development"
+  role: substantive-development
 classification:
-  arxiv: ["cs.GT", "econ.TH"]
-  msc2020: ["91B26"]
+  arxiv:
+  - cs.GT
+  - econ.TH
+  msc2020:
+  - 91B26
 sources:
-  - title: "Efficient Design with Interdependent Valuations"
-    authors: ["Philippe Jehiel", "Benny Moldovanu"]
-    type: "paper"
-    year: 2001
-    url: "https://doi.org/10.1111/1468-0262.00240"
-    relationship: "adapts"
-    note: >-
-      The finite model is the binary analogue of Example 4.2 in the
-      author-hosted February 20, 2000 draft. The quantitative error/loss
-      bound and attaining transfers are derived here. The continuous
-      congruence theorem 4.3, differentiability and genericity are not
-      formalized. Cycle necessity and linear certificates are established
-      background; no priority or original-author endorsement is claimed.
-    author_endorsement: "not-contacted"
+- title: Efficient Design with Interdependent Valuations
+  authors:
+  - Philippe Jehiel
+  - Benny Moldovanu
+  type: paper
+  year: 2001
+  url: https://doi.org/10.1111/1468-0262.00240
+  relationship: adapts
+  note: The accessible author-hosted February 20, 2000 draft, Section 2, Theorem 4.3 and appendix supply
+    the continuous congruence background; full final-journal wording was not verified. This development
+    formalizes a binary subtheorem with explicit open-ball and active-support assumptions using weak monotonicity,
+    without derivative regularity assumptions. It adds an explicit integrable-transfer converse and a
+    genuine continuous uniform-square auction corollary. The prior finite extension of Example 4.2 remains
+    separate. No full arbitrary-alternative, generic measure-zero, priority or original-author endorsement
+    claim is made.
+  author_endorsement: not-contacted
 automation:
   methods:
-    - method: "AI-assisted Lean proof development"
-      system: "OpenAI Codex"
-      role: "Model and proof development, source inspection, local compilation, contract and axiom audits, package preparation."
-    - method: "Independent AI mathematical and source review"
-      system: "OpenAI Codex, separate reviewer agents"
-      role: "Independent rational and symbolic certificates for all pointwise bounds and all deviations; primary-paper scope review."
-    - method: "Lean tactic automation"
-      role: "Finite sums, norm_num, ring, linarith and nlinarith; no trusted computation oracle."
+  - method: AI-assisted Lean proof development
+    system: OpenAI Codex
+    role: Model and proof development, source inspection, local compilation, contract and axiom audits,
+      package preparation.
+  - method: Independent AI mathematical and source review
+    system: OpenAI Codex, separate reviewer agents
+    role: Fresh separate-agent mathematical review of the full continuous necessity, explicit-transfer
+      converse and actual-prior corollary; exact-source and prose-to-binder review; separately retained
+      symbolic/rational verification of the finite frontier.
+  - method: Lean tactic automation
+    role: Finite sums, norm_num, ring, linarith and nlinarith; no trusted computation oracle.
 review:
-  status: >-
-    Local proof development with separate AI mathematical and primary-source
-    reviews. Exact symbolic and rational checks independently verify the
-    coefficient certificate and all thirty-two incentive inequalities.
-    Local mechanical gates and renderer checks are recorded in the evidence
-    bundle. No hosted exact-SHA verification, Palomar acceptance, submission,
-    mathematical novelty, or independent human review is asserted.
-  human_review: "No independent human proof review or original-author endorsement is claimed."
-  limitations: >-
-    The sharp characterization fixes two agents, one object, binary
-    two-dimensional types, independent uniform priors, and winning value
-    a*own_first_bit+b*other_second_bit, with 0<a<b. Transfers are received,
-    unrestricted real payments. Participation constraints are absent.
-    Welfare loss is expected under the true uniform distribution. Incentive
-    error is a uniform interim bound at every true type/report pair.
-    Budget balance is required for constructive feasibility and is proved
-    ex post; the universal lower bound needs no budget restriction. The
-    reusable general finite theorem proves soundness of a supplied pointwise
-    coefficient bound, not completeness or generic impossibility.
+  status: Local proof development with separate AI mathematical and exact-source/prose-to-binder reviews.
+    Final local mechanical and pinned renderer evidence is supplied in the accompanying bundle. No hosted
+    exact-SHA verification, editorial acceptance, submission, registration, novelty or independent human
+    review is asserted.
+  human_review: No independent human proof review or original-author endorsement is claimed.
+  limitations: The continuous theorem has exactly two alternatives and a distinguished agent whose types/reports
+    lie in a set containing an open ball in a real normed vector space. Opposing beliefs use a single
+    fixed probability measure independent of own true type. Private/social differences are affine with
+    a nonzero social linear form. Active support at one interior threshold is explicit; no density or
+    atomlessness is required. Lotteries are measurable per report and bounded in [0,1]. Baseline private
+    values, opponent private terms and all received transfers are integrable; the social shock is measurable,
+    and constructive existence additionally needs it integrable. Incentive inequalities quantify all true/report
+    pairs. Efficiency is pointwise on all actual opponent states, with arbitrary efficient tie randomization.
+    Transfers establish ex-post IC only with truthful opponents, not dominant-strategy IC. No budget,
+    participation or individual-rationality constraints are imposed. The continuous auction uses actual
+    subtype uniform-square volume and independent product priors and proves impossibility even for only
+    agent 0 BIC. The old finite sharp frontier retains its separate 0<a<b, binary-type, uniform-prior
+    hypotheses and budget-balanced constructive witnesses.
 alignment:
   statements:
-    - lean: "JM.Sharp.welfare_incentive_frontier"
-      description: >-
-        For all real a,b with 0<a and a<b, all profile-indexed probabilities
-        q and transfers p, and all real epsilon, IsLottery q and
-        ApproxBIC a b q p epsilon imply
-        a*(b-a)/8 <= (b-a)*epsilon+2*a*loss a b q.
-        No budget balance, participation or prior variables are assumed;
-        utility and loss fix independent uniform binary types.
-    - lean: "JM.Sharp.frontier_attained"
-      description: >-
-        For every a,b with 0<a<b and theta in [0,1], there exist a lottery
-        and ex-post budget-balanced transfers with incentive error
-        a*(1-theta)/8, exact loss (b-a)*theta/16 and equality in the bound.
-    - lean: "JM.Sharp.feasible_iff"
-      description: >-
-        For all real a,b,epsilon,D with 0<a<b, epsilon>=0 and D>=0,
-        Feasible a b epsilon D is equivalent to the frontier inequality.
-        Feasible existentially requires a valid lottery, ex-post budget
-        balance, epsilon-BIC, and expected loss at most D.
-    - lean: "JM.Quantitative.welfare_incentive_bound"
-      description: >-
-        Arbitrary finite T,O,K and real payoff/welfare tables, normalized
-        weights alpha,nu, nonnegative nu, valid q, nonnegative balanced
-        deviation flow ell, epsilon-BIC and a coefficient bound at every
-        r,o,k imply A <= beta*welfareLoss+flowMass(ell)*epsilon. The algebra
-        does not require alpha nonnegative or beta nonnegative; interpreting
-        alpha as an own prior adds nonnegativity. Opponent weights are
-        independent of the true own type. This theorem does not supply
-        certificates or formalize the continuous generic result.
-    - lean: "JM.jehiel_moldovanu_impossibility"
-      description: >-
-        The unchanged fixed deterministic contract quantifies x,p and says
-        IsEfficient x -> IsBIC uniformPrior x p -> IsBudgetBalanced p -> False.
-        It is now deduced from the a=1,b=2 randomized frontier by embedding
-        deterministic allocations, equating utilities and proving zero loss.
+  - lean: JM.Binary.utility_integrable
+    description: For every admissible true/report pair, the actual utility integrand is integrable under
+      a probability law when private baseline and opponent terms and report transfers are integrable and
+      q is a measurable bounded lottery. No totalized undefined utility is used.
+  - lean: JM.Binary.congruence
+    description: For every real normed E, measurable opponent space and probability law, every own domain
+      U containing a positive-radius ball around t0, nonzero linear social coefficient A, linear private
+      coefficient c, measurable social shock H, integrable private baseline and opponent term, measurable
+      lottery, integrable transfers, all-type BIC, pointwise efficiency and positive mass in every band
+      around the active cut imply existence of lambda>=0 with c(v)=lambda*A(v) for all v. No own prior,
+      finite dimensionality, atomlessness or transfer differentiability is required.
+  - lean: JM.Binary.aligned_ex_post
+    description: For any efficient bounded lottery and coefficient relation c=lambda*A with lambda>=0,
+      received transfers (lambda*H-d)*q establish pointwise own-report incentive compatibility with opponents
+      held at their actual types. This is not dominant-strategy truthfulness under false opponent reports.
+  - lean: JM.Binary.implementation_iff
+    description: For every specified measurable efficient lottery under the open-ball, nonzero-social-coefficient,
+      active-cut, measurable-social-shock and integrable private/social term hypotheses, integrable BIC
+      transfers exist iff c is a nonnegative multiple of A. Transfer construction covers arbitrary efficient
+      ties and all opposing probability distributions.
+  - lean: JM.Binary.efficient_bic_exists_iff
+    description: Under those hypotheses and measurable H, an actual measurable efficient lottery and integrable
+      BIC transfers exist iff coefficient alignment holds. A threshold allocation supplies the efficient
+      witness; allocation existence is not assumed vacuously.
+  - lean: JM.ContinuousAuction.uniform_probability
+    description: The natural Lebesgue volume on the actual open unit-square signal subtype has mass one.
+      jointPrior is its product with itself, expressing independent identical actual agent priors.
+  - lean: JM.ContinuousAuction.welfare_difference
+    description: For actual binary-auction values, summed true welfare difference equals the derived own
+      social linear form plus the opponent shock.
+  - lean: JM.ContinuousAuction.utility_integrable
+    description: For all true/report square signals, the actual auction utility integrand is integrable
+      for measurable bounded lotteries and integrable received transfers when b>=0.
+  - lean: JM.ContinuousAuction.impossibility
+    description: For every a>0,b>0 and every measurable bounded lottery and integrable received transfers
+      on actual open-square signal pairs, pointwise summed-welfare efficiency and all-type agent 0 interim
+      incentive compatibility under the genuine uniform-square opponent law imply False. No a<b, budget
+      balance or participation constraint is assumed. This is a changed continuous domain, not a weakened
+      finite theorem.
+  - lean: JM.Sharp.welfare_incentive_frontier
+    description: For all real a,b with 0<a and a<b, all profile-indexed probabilities q and transfers
+      p, and all real epsilon, IsLottery q and ApproxBIC a b q p epsilon imply a*(b-a)/8 <= (b-a)*epsilon+2*a*loss
+      a b q. No budget balance, participation or prior variables are assumed; utility and loss fix independent
+      uniform binary types.
+  - lean: JM.Sharp.frontier_attained
+    description: For every a,b with 0<a<b and theta in [0,1], there exist a lottery and ex-post budget-balanced
+      transfers with incentive error a*(1-theta)/8, exact loss (b-a)*theta/16 and equality in the bound.
+  - lean: JM.Sharp.feasible_iff
+    description: For all real a,b,epsilon,D with 0<a<b, epsilon>=0 and D>=0, Feasible a b epsilon D is
+      equivalent to the frontier inequality. Feasible existentially requires a valid lottery, ex-post
+      budget balance, epsilon-BIC, and expected loss at most D.
+  - lean: JM.Quantitative.welfare_incentive_bound
+    description: Arbitrary finite T,O,K and real payoff/welfare tables, normalized weights alpha,nu, nonnegative
+      nu, valid q, nonnegative balanced deviation flow ell, epsilon-BIC and a coefficient bound at every
+      r,o,k imply A <= beta*welfareLoss+flowMass(ell)*epsilon. The algebra does not require alpha nonnegative
+      or beta nonnegative; interpreting alpha as an own prior adds nonnegativity. Opponent weights are
+      independent of the true own type. This theorem does not supply certificates or formalize the continuous
+      generic result.
+  - lean: JM.jehiel_moldovanu_impossibility
+    description: The unchanged fixed deterministic contract quantifies x,p and says IsEfficient x -> IsBIC
+      uniformPrior x p -> IsBudgetBalanced p -> False. It is now deduced from the a=1,b=2 randomized frontier
+      by embedding deterministic allocations, equating utilities and proving zero loss.
 related_formalizations:
-  - id: "PALOMAR-2026-10-01-000016"
-    title: "Rochet Cyclic-Monotonicity Characterization"
-    relationship: "related-cycle-necessity-background"
-    note: >-
-      The same formalization authors' earlier finite cyclic-monotonicity
-      work is relevant background. This artifact's substantive additional
-      scope is the exact parametric welfare/incentive characterization and
-      its budget-balanced attaining mechanism, not cycle necessity alone.
+- id: PALOMAR-2026-10-01-000016
+  title: Rochet Cyclic-Monotonicity Characterization
+  relationship: related-cycle-necessity-background
+  note: Finite cyclic-monotonicity work by the same authors is background. This artifact additionally
+    proves a genuine continuous binary coefficient congruence/explicit-transfer characterization and independently
+    a sharp finite welfare/error frontier.

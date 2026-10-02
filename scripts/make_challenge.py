@@ -13,6 +13,8 @@ SOURCES = [
     ('JM/Sharp.lean', 'JM.Sharp'),
     ('JM/Frontier.lean', 'JM.Sharp'),
     ('JM/Corollaries.lean', 'JM'),
+    ('JM/Binary.lean', 'JM.Binary'),
+    ('JM/ContinuousAuction.lean', 'JM.ContinuousAuction'),
 ]
 THEOREMS = [
     'JM.Quantitative.welfare_incentive_bound',
@@ -22,6 +24,17 @@ THEOREMS = [
     'JM.Sharp.exact_bic_loss',
     'JM.Sharp.exact_bic_attained',
     'JM.jehiel_moldovanu_impossibility',
+    'JM.Binary.utility_integrable',
+    'JM.Binary.congruence',
+    'JM.Binary.aligned_ex_post',
+    'JM.Binary.implementation_iff',
+    'JM.Binary.efficient_bic_exists_iff',
+    'JM.ContinuousAuction.uniform_probability',
+    'JM.ContinuousAuction.prior_probability',
+    'JM.ContinuousAuction.joint_probability',
+    'JM.ContinuousAuction.welfare_difference',
+    'JM.ContinuousAuction.utility_integrable',
+    'JM.ContinuousAuction.impossibility',
 ]
 
 def declarations(src):
@@ -31,7 +44,7 @@ def declarations(src):
         end = matches[ix+1].start() if ix+1<len(matches) else src.rindex('\nend\n')
         raw = src[m.start():end]
         # Strip the next declaration's documentation / local options.
-        raw = re.split(r'\n/--|\nset_option ',raw,maxsplit=1)[0].rstrip()
+        raw = re.split(r'\n/--|\nset_option |\nomit ',raw,maxsplit=1)[0].rstrip()
         yield m.group(1),m.group(2),raw
 
 def render():
@@ -39,15 +52,16 @@ def render():
          'public import Mathlib.Basic.ENNReal.BigOperators', 'public import Mathlib.Data.Finset.Max',
          'public import Mathlib.Data.Fintype.Pi', 'public import Mathlib.Data.Fintype.Prod',
          'public import Mathlib.Basic.Real.Basic', 'public import Mathlib.Logic.Function.Basic',
-         'public import Mathlib.Probability.Distributions.Uniform', 'public import Mathlib.Tactic', '',
-         '/-! Standalone comparison surface for a sharp finite parametric welfare/incentive frontier.',
-         'Two agents have independent uniform binary two-dimensional types and winning values',
-         'a*own_first_bit+b*other_second_bit, with 0<a<b. Randomized epsilon-BIC mechanisms',
-         'satisfy (b-a)*epsilon+2*a*loss >= a*(b-a)/8; explicit budget-balanced mechanisms',
-         'attain the bound. This is a finite extension, not the continuous generic JM theorem.',
-         'Definitions are genuine verbatim library bodies; only selected theorem proofs are holes.',
-         'Proofs and independent AI reviews are in the local development/evidence. No human review,',
-         'novelty, hosted pass, submission or editorial acceptance is claimed. -/', '',
+         'public import Mathlib.Probability.Distributions.Uniform',
+         'public import Mathlib.MeasureTheory.Integral.Bochner.Basic',
+         'public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic',
+         'public import Mathlib.LinearAlgebra.Dual.Lemmas',
+         'public import Mathlib.Analysis.Normed.Module.Basic', 'public import Mathlib.Tactic', '',
+         '/-! Continuous binary coefficient congruence and explicit-transfer implementation,',
+         'with an independent uniform-square auction impossibility for all a,b>0.',
+         'The earlier sharp finite welfare/incentive frontier is separately retained.',
+         'Genuine definitions are repeated verbatim; only selected theorem proofs are holes.',
+         'No full arbitrary-alternative theorem, novelty or hosted verdict is claimed. -/', '',
          '@[expose] public section', '']
     defs=[];found=[]
     for file,ns in SOURCES:
@@ -55,6 +69,10 @@ def render():
         out += [f'namespace {ns}', 'open scoped BigOperators NNReal', 'noncomputable section', '']
         if ns=='JM.Quantitative':
             out += ['variable {T O K : Type*} [Fintype T] [Fintype O] [Fintype K]', '']
+        if ns=='JM.Binary':
+            out += ['open MeasureTheory', 'variable {E Ω : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]', '  [MeasurableSpace Ω]', '']
+        if ns=='JM.ContinuousAuction':
+            out += ['open MeasureTheory Set', 'attribute [local instance] Measure.Subtype.measureSpace', '']
         for kind,name,raw in declarations(src):
             fullname=ns+'.'+name
             if kind in ('def','abbrev') or fullname=='JM.argmax_nonempty':

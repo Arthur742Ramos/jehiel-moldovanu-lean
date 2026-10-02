@@ -8,16 +8,17 @@ public import Mathlib.Data.Fintype.Prod
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Logic.Function.Basic
 public import Mathlib.Probability.Distributions.Uniform
+public import Mathlib.MeasureTheory.Integral.Bochner.Basic
+public import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+public import Mathlib.LinearAlgebra.Dual.Lemmas
+public import Mathlib.Analysis.Normed.Module.Basic
 public import Mathlib.Tactic
 
-/-! Standalone comparison surface for a sharp finite parametric welfare/incentive frontier.
-Two agents have independent uniform binary two-dimensional types and winning values
-a*own_first_bit+b*other_second_bit, with 0<a<b. Randomized epsilon-BIC mechanisms
-satisfy (b-a)*epsilon+2*a*loss >= a*(b-a)/8; explicit budget-balanced mechanisms
-attain the bound. This is a finite extension, not the continuous generic JM theorem.
-Definitions are genuine verbatim library bodies; only selected theorem proofs are holes.
-Proofs and independent AI reviews are in the local development/evidence. No human review,
-novelty, hosted pass, submission or editorial acceptance is claimed. -/
+/-! Continuous binary coefficient congruence and explicit-transfer implementation,
+with an independent uniform-square auction impossibility for all a,b>0.
+The earlier sharp finite welfare/incentive frontier is separately retained.
+Genuine definitions are repeated verbatim; only selected theorem proofs are holes.
+No full arbitrary-alternative theorem, novelty or hosted verdict is claimed. -/
 
 @[expose] public section
 
@@ -269,3 +270,170 @@ theorem jehiel_moldovanu_impossibility :
 
 end
 end JM
+
+namespace JM.Binary
+open scoped BigOperators NNReal
+noncomputable section
+
+open MeasureTheory
+variable {E Ω : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  [MeasurableSpace Ω]
+
+def EfficientAt (q W : ℝ) : Prop :=
+  0 ≤ q ∧ q ≤ 1 ∧ (0 < W → q = 1) ∧ (W < 0 → q = 0)
+
+def utility (μ : Measure Ω) {U : Set E} (c : E →ₗ[ℝ] ℝ)
+    (g : U → Ω → ℝ) (d : Ω → ℝ) (q p : U → Ω → ℝ) (t r : U) : ℝ :=
+  ∫ o, g t o + q r o * (c t.val + d o) + p r o ∂μ
+
+def Lottery {U : Set E} (q : U → Ω → ℝ) : Prop :=
+  (∀ r, Measurable (q r)) ∧ ∀ r o, 0 ≤ q r o ∧ q r o ≤ 1
+
+def Transfers (μ : Measure Ω) {U : Set E} (p : U → Ω → ℝ) : Prop :=
+  ∀ r, Integrable (p r) μ
+
+def BIC (μ : Measure Ω) {U : Set E} (c : E →ₗ[ℝ] ℝ)
+    (g : U → Ω → ℝ) (d : Ω → ℝ) (q p : U → Ω → ℝ) : Prop :=
+  ∀ t r, utility μ c g d q p t r ≤ utility μ c g d q p t t
+
+def Efficient {U : Set E} (A : E →ₗ[ℝ] ℝ) (H : Ω → ℝ)
+    (q : U → Ω → ℝ) : Prop := ∀ r o, EfficientAt (q r o) (A r.val + H o)
+
+def Active (μ : Measure Ω) (A : E →ₗ[ℝ] ℝ) (H : Ω → ℝ) (t0 : E) : Prop :=
+  ∀ η : ℝ, 0 < η → μ {o | |A t0 + H o| < η} ≠ 0
+
+def probability (μ : Measure Ω) {U : Set E} (q : U → Ω → ℝ) (r : U) : ℝ :=
+  ∫ o, q r o ∂μ
+
+theorem utility_integrable (μ : Measure Ω) [IsProbabilityMeasure μ]
+    {U : Set E} (c : E →ₗ[ℝ] ℝ) (g : U → Ω → ℝ) (d : Ω → ℝ)
+    {q p : U → Ω → ℝ} (hg : ∀ t, Integrable (g t) μ) (hd : Integrable d μ)
+    (hq : Lottery q) (hp : Transfers μ p) (t r : U) :
+    Integrable (fun o => g t o + q r o * (c t.val + d o) + p r o) μ := by
+  sorry
+
+theorem congruence (μ : Measure Ω) [IsProbabilityMeasure μ]
+    {U : Set E} (c A : E →ₗ[ℝ] ℝ) (g : U → Ω → ℝ) (d H : Ω → ℝ)
+    {q p : U → Ω → ℝ} (hg : ∀ t, Integrable (g t) μ) (hd : Integrable d μ)
+    (hq : Lottery q) (hp : Transfers μ p) (hb : BIC μ c g d q p)
+    (he : Efficient A H q) (hmH : Measurable H) (hA : A ≠ 0)
+    (t0 : E) (rad : ℝ) (hrad : 0 < rad) (hball : Metric.ball t0 rad ⊆ U)
+    (ha : Active μ A H t0) : ∃ lam : ℝ, 0 ≤ lam ∧ ∀ v, c v = lam * A v := by
+  sorry
+
+def alignedTransfers {U : Set E} (lam : ℝ) (d H : Ω → ℝ) (q : U → Ω → ℝ) :
+    U → Ω → ℝ := fun r o => (lam * H o - d o) * q r o
+
+def ExPostIC {U : Set E} (c : E →ₗ[ℝ] ℝ) (g : U → Ω → ℝ) (d : Ω → ℝ)
+    (q p : U → Ω → ℝ) : Prop := ∀ t r o,
+  g t o + q r o * (c t.val + d o) + p r o ≤
+  g t o + q t o * (c t.val + d o) + p t o
+
+theorem aligned_ex_post (c A : E →ₗ[ℝ] ℝ) {U : Set E} (g : U → Ω → ℝ)
+    (d H : Ω → ℝ) {q : U → Ω → ℝ} (hq : Lottery q) (he : Efficient A H q)
+    (lam : ℝ) (hl : 0 ≤ lam) (hc : ∀ v, c v = lam * A v) :
+    ExPostIC c g d q (alignedTransfers lam d H q) := by
+  sorry
+
+theorem implementation_iff (μ : Measure Ω) [IsProbabilityMeasure μ]
+    {U : Set E} (c A : E →ₗ[ℝ] ℝ) (g : U → Ω → ℝ) (d H : Ω → ℝ)
+    {q : U → Ω → ℝ} (hg : ∀ t, Integrable (g t) μ) (hd : Integrable d μ)
+    (hH : Integrable H μ) (hq : Lottery q) (he : Efficient A H q) (hmH : Measurable H) (hA : A ≠ 0)
+    (t0 : E) (rad : ℝ) (hrad : 0 < rad) (hball : Metric.ball t0 rad ⊆ U)
+    (ha : Active μ A H t0) :
+    (∃ p : U → Ω → ℝ, Transfers μ p ∧ BIC μ c g d q p) ↔
+      ∃ lam : ℝ, 0 ≤ lam ∧ ∀ v, c v = lam * A v := by
+  sorry
+
+def thresholdLottery {U : Set E} (A : E →ₗ[ℝ] ℝ) (H : Ω → ℝ) :
+    U → Ω → ℝ := fun r o => if 0 < A r.val + H o then 1 else 0
+
+theorem efficient_bic_exists_iff (μ : Measure Ω) [IsProbabilityMeasure μ]
+    {U : Set E} (c A : E →ₗ[ℝ] ℝ) (g : U → Ω → ℝ) (d H : Ω → ℝ)
+    (hg : ∀ t, Integrable (g t) μ) (hd : Integrable d μ)
+    (hH : Integrable H μ) (hmH : Measurable H) (hA : A ≠ 0)
+    (t0 : E) (rad : ℝ) (hrad : 0 < rad) (hball : Metric.ball t0 rad ⊆ U)
+    (ha : Active μ A H t0) :
+    (∃ q p : U → Ω → ℝ, Lottery q ∧ Transfers μ p ∧ Efficient A H q ∧
+      BIC μ c g d q p) ↔ ∃ lam : ℝ, 0 ≤ lam ∧ ∀ v, c v = lam * A v := by
+  sorry
+
+end
+end JM.Binary
+
+namespace JM.ContinuousAuction
+open scoped BigOperators NNReal
+noncomputable section
+
+open MeasureTheory Set
+attribute [local instance] Measure.Subtype.measureSpace
+
+def domain : Set (ℝ × ℝ) := Ioo 0 1 ×ˢ Ioo 0 1
+
+abbrev Signal := domain
+attribute [local instance] Measure.Subtype.measureSpace
+
+def prior : Measure Signal := volume
+
+def jointPrior : Measure (Signal × Signal) := prior.prod prior
+
+def privateCoefficient (a : ℝ) : (ℝ × ℝ) →ₗ[ℝ] ℝ := a • LinearMap.fst ℝ ℝ ℝ
+
+def socialCoefficient (a b : ℝ) : (ℝ × ℝ) →ₗ[ℝ] ℝ :=
+  a • LinearMap.fst ℝ ℝ ℝ - b • LinearMap.snd ℝ ℝ ℝ
+
+def privateOpponent (b : ℝ) (o : Signal) : ℝ := b * o.val.2
+
+def socialOpponent (a b : ℝ) (o : Signal) : ℝ := b * o.val.2 - a * o.val.1
+
+def baseline : Signal → Signal → ℝ := fun _ _ => 0
+
+def value (a b : ℝ) (agent winner : Bool) (t o : Signal) : ℝ :=
+  if agent = winner then
+    if agent then a * t.val.1 + b * o.val.2 else a * o.val.1 + b * t.val.2
+  else 0
+
+def welfare (a b : ℝ) (winner : Bool) (t o : Signal) : ℝ :=
+  value a b true winner t o + value a b false winner t o
+
+def Efficient (a b : ℝ) (q : Signal → Signal → ℝ) : Prop :=
+  ∀ t o, Binary.EfficientAt (q t o) (welfare a b true t o - welfare a b false t o)
+
+def utility (a b : ℝ) (q p : Signal → Signal → ℝ) (t r : Signal) : ℝ :=
+  ∫ o, q r o * value a b true true t o +
+    (1 - q r o) * value a b true false t o + p r o ∂prior
+
+def Agent0BIC (a b : ℝ) (q p : Signal → Signal → ℝ) : Prop :=
+  ∀ t r, utility a b q p t r ≤ utility a b q p t t
+
+theorem uniform_probability : IsProbabilityMeasure (volume : Measure Signal) := by
+  sorry
+
+theorem prior_probability : IsProbabilityMeasure prior := by
+  sorry
+
+theorem joint_probability : IsProbabilityMeasure jointPrior := by
+  sorry
+
+def box (ρ : ℝ) : Set (ℝ × ℝ) :=
+  Ioo ((1:ℝ)/2-ρ) (1/2+ρ) ×ˢ Ioo ((1:ℝ)/2-ρ) (1/2+ρ)
+
+theorem welfare_difference (a b : ℝ) (t o : Signal) :
+    welfare a b true t o - welfare a b false t o =
+      socialCoefficient a b t.val + socialOpponent a b o := by
+  sorry
+
+theorem utility_integrable (a b : ℝ) (hb : 0 ≤ b) {q p : Signal → Signal → ℝ}
+    (hq : Binary.Lottery q) (hp : Binary.Transfers prior p) (t r : Signal) :
+    Integrable (fun o => q r o * value a b true true t o +
+      (1 - q r o) * value a b true false t o + p r o) prior := by
+  sorry
+
+theorem impossibility (a b : ℝ) (ha : 0 < a) (hb : 0 < b)
+    (q p : Signal → Signal → ℝ) (hq : Binary.Lottery q)
+    (hp : Binary.Transfers prior p) (he : Efficient a b q) (hB : Agent0BIC a b q p) :
+    False := by
+  sorry
+
+end
+end JM.ContinuousAuction
