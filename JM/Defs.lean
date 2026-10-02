@@ -194,6 +194,217 @@ def cycleSum (x : Allocation) (i : Agent) : ℝ :=
     (interimUtil π x (fun _ _ => 0) i (cycleType j) (cycleType j) -
       interimUtil π x (fun _ _ => 0) i (cycleType j) (cycleType (j + 1)))
 
+/-- The two agents are distinct. -/
+lemma n10 : (1 : Fin 2) ≠ 0 := by decide
+
+lemma n01 : (0 : Fin 2) ≠ 1 := by decide
+
+lemma other0 : other 0 = 1 := rfl
+
+lemma other1 : other 1 = 0 := rfl
+
+lemma c0 : cycleType 0 = (false, false) := rfl
+
+lemma c1 : cycleType 1 = (false, true) := rfl
+
+lemma c2 : cycleType 2 = (true, true) := rfl
+
+lemma c3 : cycleType 3 = (true, false) := rfl
+
+lemma e01 : (0 : Fin 4) + 1 = 1 := rfl
+
+lemma e12 : (1 : Fin 4) + 1 = 2 := rfl
+
+lemma e23 : (2 : Fin 4) + 1 = 3 := rfl
+
+lemma e30 : (3 : Fin 4) + 1 = 0 := rfl
+
+/-- Separate the value and transfer contributions to interim utility. -/
+lemma interimUtil_split (x : Allocation) (p : Transfers) (i : Agent) (s r : T i) :
+    interimUtil π x p i s r =
+      (∑ t : Profile, weight π t * value i (x (splice i r t)) (splice i s t)) +
+      (∑ t : Profile, weight π t * p i (splice i r t)) := by
+  simp only [interimUtil, mul_add, Finset.sum_add_distrib]
+
+/-- Expected transfers telescope around the closed four-type cycle. -/
+lemma transfer_cycle_zero (p : Transfers) (i : Agent) :
+    ∑ j : Fin 4,
+      ((∑ t : Profile, weight π t * p i (splice i (cycleType j) t)) -
+        (∑ t : Profile, weight π t * p i (splice i (cycleType (j + 1)) t))) = 0 := by
+  rw [Finset.sum_sub_distrib]
+  apply sub_eq_zero.mpr
+  simp only [Fin.sum_univ_four, e01, e12, e23, e30]
+  ac_rfl
+
+/-- Adding arbitrary transfers leaves the closed-cycle utility sum unchanged. -/
+lemma transfer_telescope (x : Allocation) (p : Transfers) (i : Agent) :
+    ∑ j : Fin 4,
+      (interimUtil π x p i (cycleType j) (cycleType j) -
+        interimUtil π x p i (cycleType j) (cycleType (j + 1))) =
+      cycleSum (π := π) x i := by
+  simp only [cycleSum, interimUtil_split, mul_zero, Finset.sum_const_zero, add_zero]
+  simp only [add_sub_add_comm, Finset.sum_add_distrib, transfer_cycle_zero, add_zero]
+
+/-- Every cycle inequality follows by summing the four BIC inequalities. -/
+lemma cycleSum_nonneg (x : Allocation) (p : Transfers) (hBIC : IsBIC π x p)
+    (i : Agent) : 0 ≤ cycleSum (π := π) x i := by
+  rw [← transfer_telescope (π := π) x p i]
+  apply Finset.sum_nonneg
+  intro j _
+  exact sub_nonneg.mpr (hBIC i (cycleType j) (cycleType (j + 1)))
+
+/-- Summing a function of agent one's type integrates out agent zero's type. -/
+lemma sum_profile_factor_one (F : T 1 → ℝ) :
+    ∑ t : Profile, F (t 1) = 4 * ∑ t1 : T 1, F t1 := by
+  have h : ∑ t : Profile, F (t 1) = ∑ p : T 0 × T 1, F p.2 := by
+    refine Fintype.sum_equiv (piFinTwoEquiv T) _ _ (fun t => ?_)
+    rfl
+  rw [h, Fintype.sum_prod_type]
+  change (∑ _ : T 0, ∑ t1 : T 1, F t1) = 4 * ∑ t1 : T 1, F t1
+  rw [Finset.sum_const, Finset.card_univ]
+  simp [T, Fintype.card_prod, Fintype.card_bool, nsmul_eq_mul]
+
+/-- Summing a function of agent zero's type integrates out agent one's type. -/
+lemma sum_profile_factor_zero (F : T 0 → ℝ) :
+    ∑ t : Profile, F (t 0) = 4 * ∑ t0 : T 0, F t0 := by
+  have h : ∑ t : Profile, F (t 0) = ∑ p : T 0 × T 1, F p.1 := by
+    refine Fintype.sum_equiv (piFinTwoEquiv T) _ _ (fun t => ?_)
+    rfl
+  rw [h, Fintype.sum_prod_type]
+  simp [T, Finset.sum_const, Fintype.card_prod, Fintype.card_bool,
+    nsmul_eq_mul, ← Finset.mul_sum]
+
+/-- Splicing agent zero produces the corresponding two-entry profile. -/
+lemma key0 (r : T 0) (t : Profile) :
+    Function.update t 0 r = (![r, t 1] : Profile) := by
+  funext j
+  fin_cases j
+  · exact Function.update_self 0 r t
+  · exact Function.update_of_ne n10 r t
+
+/-- Splicing agent one produces the corresponding two-entry profile. -/
+lemma key1 (r : T 1) (t : Profile) :
+    Function.update t 1 r = (![t 0, r] : Profile) := by
+  funext j
+  fin_cases j
+  · exact Function.update_of_ne n01 r t
+  · exact Function.update_self 1 r t
+
+/-- Uniform interim utility for agent zero is an average over four opposing types. -/
+lemma interimUtil_zero (x : Allocation) (p : Transfers) (s r : T 0) :
+    interimUtil uniformPrior x p 0 s r =
+      ∑ t1 : T 1, (1 / 4 : ℝ) *
+        (value 0 (x ![r, t1]) ![s, t1] + p 0 ![r, t1]) := by
+  simp only [interimUtil, splice, uniform_weight]
+  simp_rw [key0]
+  rw [sum_profile_factor_one
+    (fun t1 => (1 / 16 : ℝ) * (value 0 (x ![r, t1]) ![s, t1] + p 0 ![r, t1])),
+    Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro t1 _
+  rw [← mul_assoc]
+  norm_num
+
+/-- Uniform interim utility for agent one is an average over four opposing types. -/
+lemma interimUtil_one (x : Allocation) (p : Transfers) (s r : T 1) :
+    interimUtil uniformPrior x p 1 s r =
+      ∑ t0 : T 0, (1 / 4 : ℝ) *
+        (value 1 (x ![t0, r]) ![t0, s] + p 1 ![t0, r]) := by
+  simp only [interimUtil, splice, uniform_weight]
+  simp_rw [key1]
+  rw [sum_profile_factor_zero
+    (fun t0 => (1 / 16 : ℝ) * (value 1 (x ![t0, r]) ![t0, s] + p 1 ![t0, r])),
+    Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro t0 _
+  rw [← mul_assoc]
+  norm_num
+
+/-- Every alternative in the two-element set is zero or one. -/
+lemma alternative_cases (k : X) : k = 0 ∨ k = 1 := by
+  fin_cases k <;> simp
+
+/-- A strict welfare advantage forces an efficient allocation to choose zero. -/
+lemma efficient_winner_zero (x : Allocation) (hx : IsEfficient x) (t : Profile)
+    (hlt : welfare t 1 < welfare t 0) : x t = 0 := by
+  rcases alternative_cases (x t) with h | h
+  · exact h
+  · have hle := hx t 0
+    rw [h] at hle
+    exact False.elim ((not_lt_of_ge hle) hlt)
+
+/-- A strict welfare advantage forces an efficient allocation to choose one. -/
+lemma efficient_winner_one (x : Allocation) (hx : IsEfficient x) (t : Profile)
+    (hlt : welfare t 0 < welfare t 1) : x t = 1 := by
+  rcases alternative_cases (x t) with h | h
+  · have hle := hx t 1
+    rw [h] at hle
+    exact False.elim ((not_lt_of_ge hle) hlt)
+  · exact h
+
+/-- Efficiency fixes twelve profiles; all sixteen choices at the four ties
+have the same combined value-only cycle sum. -/
+lemma cycleSum_pair (x : Allocation) (hx : IsEfficient x) :
+    cycleSum (π := uniformPrior) x 0 + cycleSum (π := uniformPrior) x 1 = -1 / 2 := by
+  have e_FF_FT : x (![(false, false), (false, true)] : Profile) = 0 := by
+    apply efficient_winner_zero x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_FF_TF : x (![(false, false), (true, false)] : Profile) = 1 := by
+    apply efficient_winner_one x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_FF_TT : x (![(false, false), (true, true)] : Profile) = 0 := by
+    apply efficient_winner_zero x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_FT_FF : x (![(false, true), (false, false)] : Profile) = 1 := by
+    apply efficient_winner_one x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_FT_TF : x (![(false, true), (true, false)] : Profile) = 1 := by
+    apply efficient_winner_one x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_FT_TT : x (![(false, true), (true, true)] : Profile) = 1 := by
+    apply efficient_winner_one x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_TF_FF : x (![(true, false), (false, false)] : Profile) = 0 := by
+    apply efficient_winner_zero x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_TF_FT : x (![(true, false), (false, true)] : Profile) = 0 := by
+    apply efficient_winner_zero x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_TF_TT : x (![(true, false), (true, true)] : Profile) = 0 := by
+    apply efficient_winner_zero x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_TT_FF : x (![(true, true), (false, false)] : Profile) = 1 := by
+    apply efficient_winner_one x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_TT_FT : x (![(true, true), (false, true)] : Profile) = 0 := by
+    apply efficient_winner_zero x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  have e_TT_TF : x (![(true, true), (true, false)] : Profile) = 1 := by
+    apply efficient_winner_one x hx
+    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
+      Matrix.cons_val_zero, Matrix.cons_val_one]
+  rcases alternative_cases (x (![(false, false), (false, false)] : Profile)) with h00 | h00 <;>
+  rcases alternative_cases (x (![(false, true), (false, true)] : Profile)) with h11 | h11 <;>
+  rcases alternative_cases (x (![(true, true), (true, true)] : Profile)) with h22 | h22 <;>
+  rcases alternative_cases (x (![(true, false), (true, false)] : Profile)) with h33 | h33 <;>
+    simp only [cycleSum, Fin.sum_univ_four, e01, e12, e23, e30,
+      c0, c1, c2, c3, interimUtil_zero, interimUtil_one] <;>
+    simp only [T, Fintype.sum_prod_type, Fintype.sum_bool] <;>
+    simp only [e_FF_FT, e_FF_TF, e_FF_TT, e_FT_FF, e_FT_TF, e_FT_TT,
+      e_TF_FF, e_TF_FT, e_TF_TT, e_TT_FF, e_TT_FT, e_TT_TF, h00, h11, h22, h33] <;>
+    norm_num [value, valA, valB, c, other, Matrix.cons_val_zero, Matrix.cons_val_one]
+
 /-- For this concrete finite instance and independent uniform priors, no
 efficient, Bayesian incentive compatible, budget-balanced mechanism exists.
 M2 will supply the proof; definitions and supporting lemmas have no holes.
@@ -201,7 +412,11 @@ M2 will supply the proof; definitions and supporting lemmas have no holes.
 theorem jehiel_moldovanu_impossibility :
     ∀ (x : Allocation) (p : Transfers),
       IsEfficient x → IsBIC uniformPrior x p → IsBudgetBalanced p → False := by
-  sorry
+  intro x p hxEff hxBIC _
+  have h0 := cycleSum_nonneg (π := uniformPrior) x p hxBIC 0
+  have h1 := cycleSum_nonneg (π := uniformPrior) x p hxBIC 1
+  have hsum := cycleSum_pair x hxEff
+  linarith
 
 end
 

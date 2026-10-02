@@ -119,3 +119,19 @@ registry search.
   is a 16-way case split on the diagonal ties plus `decide`/`norm_num`
   (all profile evaluations are concrete). Budget balance is a hypothesis but
   is not needed for the contradiction.
+
+## M2-M4 proof (2026-10-02)
+
+- Codex proved `JM.jehiel_moldovanu_impossibility` (26 helper lemmas, same
+  file, statement unchanged). Independently verified: `lake build` green
+  (3000 jobs, exit 0), zero `sorry` in sources, `#print axioms` =
+  `[propext, Classical.choice, Quot.sound]`.
+- Proof structure: (1) `transfer_telescope`: per-agent cycle sums with
+  arbitrary transfers equal the zero-transfer `cycleSum` (transfer terms
+  telescope around the closed 4-cycle); (2) `cycleSum_nonneg`: BIC forces
+  each agent's cycle sum >= 0; (3) `cycleSum_pair`: for every efficient x,
+  the two agents' value-only cycle sums total -1/2, via 12 forced-winner
+  efficiency lemmas + 16-way case split on the 4 diagonal ties, then
+  concrete computation; (4) `linarith` contradiction.
+- Note: `IsBudgetBalanced` is a hypothesis of the theorem but is not needed
+  for the contradiction (transfer telescoping is per-agent).
