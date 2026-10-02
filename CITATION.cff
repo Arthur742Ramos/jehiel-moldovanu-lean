@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: "jehiel-moldovanu-lean"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: "Ramos"
+    given-names: "Arthur Freitas"
+  - family-names: "Hulak"
+    given-names: "David Barros"
+  - family-names: "de Queiroz"
+    given-names: "Ruy Jose Guerra Barretto"
+license: "BSD-3-Clause"
+repository-code: "https://github.com/Arthur742Ramos/jehiel-moldovanu-lean"
+keywords:
+  - "mechanism design"
+  - "impossibility theorem"
+  - "interdependent valuations"
+  - "Lean 4"
+  - "Mathlib"

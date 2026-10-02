@@ -1,0 +1,114 @@
+version: "v0.4"
+project:
+  name: "jehiel-moldovanu-lean"
+  description: >-
+    Lean 4 formalization of a finite instance of the Jehiel-Moldovanu
+    impossibility theorem (Econometrica 2001): with multidimensional types
+    and interdependent valuations, ex post efficiency, Bayesian incentive
+    compatibility, and budget balance are jointly unattainable. Two agents
+    (Agent := Fin 2) have two-dimensional binary types (T i := Bool x Bool);
+    one object is allocated (winner in X := Fin 2). Agent i's winning value
+    is valA of its own first signal (0 or 1) plus valB of the other agent's
+    second signal (0 or 2), scaled by c = 1; the nonwinner's value is zero.
+    Priors are independent and uniform (uniformPrior). Efficiency is
+    pointwise: IsEfficient x says the allocation maximizes utilitarian
+    welfare at every profile. BIC is interim: IsBIC pi x p says truthful
+    reporting maximizes each agent's interim expected utility at every own
+    type. Budget balance is pointwise: IsBudgetBalanced p says transfers sum
+    to zero at every report profile. The proof is a four-type cycle
+    congruence argument: transfer terms telescope around each agent's closed
+    four-type cycle, BIC forces each agent's cycle sum to be nonnegative,
+    and for every efficient rule the two agents' value-only cycle sums total
+    -1/2 (twelve forced winners off the diagonal; a sixteen-way split over
+    the four diagonal efficiency ties), which is contradictory. Budget
+    balance is a hypothesis of the statement but is not needed for the
+    contradiction, since the telescoping is per-agent. This is a finite
+    instance, not the continuous generic impossibility theorem of the
+    original paper.
+  authors:
+    - "Arthur Freitas Ramos"
+    - "David Barros Hulak"
+    - "Ruy Jose Guerra Barretto de Queiroz"
+  responsible_maintainers:
+    - "Arthur Freitas Ramos"
+    - "David Barros Hulak"
+    - "Ruy Jose Guerra Barretto de Queiroz"
+  license: "BSD-3-Clause"
+repository:
+  role: "substantive-development"
+classification:
+  arxiv: ["cs.GT", "econ.TH"]
+  msc2020: ["91B26"]
+sources:
+  - title: "Efficient Design with Interdependent Valuations"
+    authors: ["Philippe Jehiel", "Benny Moldovanu"]
+    type: "paper"
+    year: 2001
+    url: "https://doi.org/10.1111/1468-0262.00240"
+    relationship: "formalizes"
+    note: >-
+      The selected contract formalizes a finite instance of the
+      paper's impossibility: with multidimensional (two-dimensional)
+      types and interdependent valuations, no mechanism is
+      simultaneously ex post efficient, Bayesian incentive compatible,
+      and budget balanced. The library proves this for two agents with
+      binary two-dimensional types and independent uniform priors via
+      a four-type cycle congruence argument, the finite analogue of
+      the paper's congruence argument.
+    author_endorsement: "not-contacted"
+automation:
+  methods:
+    - method: "AI-assisted Lean proof development"
+      system: "OpenAI Codex"
+      role: "Source inspection, proof implementation, compilation, placeholder and axiom audits, and package preparation."
+    - method: "Lean tactic automation"
+      role: "simp, norm_num, linarith, and finite-sum manipulations over Bool x Bool."
+review:
+  status: >-
+    The completed library was reported to build with zero proof placeholders;
+    the capstone theorem was reported to depend only on propext,
+    Classical.choice, and Quot.sound. The proof was developed with AI
+    assistance and mechanically checked. This packaging pass performs
+    source inspection against the final Lean binders. The supplied scripts
+    support subsequent package validation; the official comparator checks
+    the exact contract. No separate independent human review of the proof
+    was performed.
+  human_review: "No independent human review of the proof or original-author endorsement is claimed."
+  limitations: >-
+    Finite instance only: exactly two agents (Fin 2), two-dimensional binary
+    types (Bool x Bool), one object (winner in Fin 2), independent uniform
+    priors. Interdependent values: agent i's winning value is valA of its
+    own first signal plus valB of the other agent's second signal, scaled
+    by c = 1. Efficiency is pointwise (every profile); budget balance is
+    pointwise (every report profile); BIC is interim with respect to
+    uniformPrior. Budget balance is a hypothesis of the theorem but plays
+    no role in the proof. The continuous generic impossibility theorem of
+    the original paper is not formalized.
+alignment:
+  statements:
+    - lean: "JM.jehiel_moldovanu_impossibility"
+      description: >-
+        The exact binders are (x : JM.Allocation) (p : JM.Transfers), where
+        JM.Allocation := Profile -> X and JM.Transfers := Agent -> Profile
+        -> R. The conclusion is
+        JM.IsEfficient x -> JM.IsBIC JM.uniformPrior x p ->
+        JM.IsBudgetBalanced p -> False.
+        IsEfficient is pointwise welfare maximization at every profile;
+        IsBIC is the interim incentive condition specialized to the
+        uniform independent prior uniformPrior : (i : Agent) -> PMF (T i);
+        IsBudgetBalanced says transfers sum to zero at every report
+        profile. No prior is taken as an argument: the statement fixes
+        uniformPrior. The theorem is proved by a four-type cycle
+        congruence: transfer terms telescope around each agent's closed
+        four-type cycle (cycleSum), BIC makes each agent's cycle sum
+        nonnegative, and every efficient rule yields a combined value-only
+        cycle sum of -1/2, contradicting nonnegativity by linarith.
+related_formalizations:
+  - id: "palomar-registry-search-2026-10-02"
+    title: "Dated Palomar registry search for Jehiel-Moldovanu formalizations"
+    relationship: "none-found-in-registry-search"
+    note: >-
+      The Palomar registry search performed on 2026-10-02 for "jehiel",
+      "moldovanu", "interdependent valuations", and "multidimensional"
+      returned zero results. This records only that dated registry search
+      and makes no claim about formalizations outside its results.

@@ -13,3 +13,7 @@ require mathlib from git
 
 @[default_target]
 lean_lib JM where
+
+lean_lib Challenge where
+
+lean_lib Solution where
