@@ -1,11 +1,13 @@
 """Generate Challenge.lean by verbatim copy from the JM library.
 
-Copies the module body (variable line, all definitions, helper lemmas) byte-for-byte
+Copies the module body (variable line, all definitions, required helper lemmas) byte-for-byte
 from JM/Defs.lean, so that Lean's variable auto-binding produces syntactically
 identical declaration types. Only the comparator-selected theorem proof is
-replaced with a `sorry` placeholder.
+replaced with a `sorry` placeholder. The unselected cycleSum_pair helper is omitted
+from this reference surface; its full proof remains in JM/Defs.lean.
 """
 import re
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -30,6 +32,11 @@ def render() -> str:
     # Body block: everything from after `namespace JM` up to the comparator theorem.
     stop = src.index("theorem jehiel_moldovanu_impossibility", start)
     body = src[start:stop].rstrip() + "\n\n"
+    config = json.loads((ROOT / "comparator.json").read_text())
+    assert "JM.cycleSum_pair" not in config["theorem_names"]
+    helper_start = body.index("/-- Efficiency fixes twelve profiles;")
+    helper_end = body.index("\n/--", helper_start + 1)
+    body = body[:helper_start] + body[helper_end + 1:]
     sorry_thm = statement_sorry(src, "jehiel_moldovanu_impossibility")
     header = '''module
 
@@ -40,6 +47,8 @@ All definitions below are genuine, with their exact library bodies, copied
 verbatim (including the variable binders) so that declaration types match
 the library syntactically.
 Only the comparator-selected theorem proof is a deliberate statement hole.
+The unselected cycleSum_pair helper is omitted from this reference surface:
+its expanded proof states exceed the renderer's per-file size limit.
 The complete, mechanically checked proof is in the JM library imported by
 Solution. The proof was developed with AI assistance and then independently
 compiled, audited for placeholders and axioms, and comparator-checked; no

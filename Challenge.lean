@@ -17,6 +17,8 @@ All definitions below are genuine, with their exact library bodies, copied
 verbatim (including the variable binders) so that declaration types match
 the library syntactically.
 Only the comparator-selected theorem proof is a deliberate statement hole.
+The unselected cycleSum_pair helper is omitted from this reference surface:
+its expanded proof states exceed the renderer's per-file size limit.
 The complete, mechanically checked proof is in the JM library imported by
 Solution. The proof was developed with AI assistance and then independently
 compiled, audited for placeholders and axioms, and comparator-checked; no
@@ -340,69 +342,6 @@ lemma efficient_winner_one (x : Allocation) (hx : IsEfficient x) (t : Profile)
     rw [h] at hle
     exact False.elim ((not_lt_of_ge hle) hlt)
   · exact h
-
-/-- Efficiency fixes twelve profiles; all sixteen choices at the four ties
-have the same combined value-only cycle sum. -/
-lemma cycleSum_pair (x : Allocation) (hx : IsEfficient x) :
-    cycleSum (π := uniformPrior) x 0 + cycleSum (π := uniformPrior) x 1 = -1 / 2 := by
-  have e_FF_FT : x (![(false, false), (false, true)] : Profile) = 0 := by
-    apply efficient_winner_zero x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_FF_TF : x (![(false, false), (true, false)] : Profile) = 1 := by
-    apply efficient_winner_one x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_FF_TT : x (![(false, false), (true, true)] : Profile) = 0 := by
-    apply efficient_winner_zero x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_FT_FF : x (![(false, true), (false, false)] : Profile) = 1 := by
-    apply efficient_winner_one x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_FT_TF : x (![(false, true), (true, false)] : Profile) = 1 := by
-    apply efficient_winner_one x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_FT_TT : x (![(false, true), (true, true)] : Profile) = 1 := by
-    apply efficient_winner_one x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_TF_FF : x (![(true, false), (false, false)] : Profile) = 0 := by
-    apply efficient_winner_zero x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_TF_FT : x (![(true, false), (false, true)] : Profile) = 0 := by
-    apply efficient_winner_zero x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_TF_TT : x (![(true, false), (true, true)] : Profile) = 0 := by
-    apply efficient_winner_zero x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_TT_FF : x (![(true, true), (false, false)] : Profile) = 1 := by
-    apply efficient_winner_one x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_TT_FT : x (![(true, true), (false, true)] : Profile) = 0 := by
-    apply efficient_winner_zero x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  have e_TT_TF : x (![(true, true), (true, false)] : Profile) = 1 := by
-    apply efficient_winner_one x hx
-    norm_num [welfare, Fin.sum_univ_two, value, valA, valB, c, other,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
-  rcases alternative_cases (x (![(false, false), (false, false)] : Profile)) with h00 | h00 <;>
-  rcases alternative_cases (x (![(false, true), (false, true)] : Profile)) with h11 | h11 <;>
-  rcases alternative_cases (x (![(true, true), (true, true)] : Profile)) with h22 | h22 <;>
-  rcases alternative_cases (x (![(true, false), (true, false)] : Profile)) with h33 | h33 <;>
-    simp only [cycleSum, Fin.sum_univ_four, e01, e12, e23, e30,
-      c0, c1, c2, c3, interimUtil_zero, interimUtil_one] <;>
-    simp only [T, Fintype.sum_prod_type, Fintype.sum_bool] <;>
-    simp only [e_FF_FT, e_FF_TF, e_FF_TT, e_FT_FF, e_FT_TF, e_FT_TT,
-      e_TF_FF, e_TF_FT, e_TF_TT, e_TT_FF, e_TT_FT, e_TT_TF, h00, h11, h22, h33] <;>
-    norm_num [value, valA, valB, c, other, Matrix.cons_val_zero, Matrix.cons_val_one]
 
 /-- For this concrete finite instance and independent uniform priors, no
 efficient, Bayesian incentive compatible, budget-balanced mechanism exists.
