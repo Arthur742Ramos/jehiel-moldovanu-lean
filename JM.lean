@@ -1,3 +1,3 @@
 module
 
-public import JM.Defs
+public import JM.Corollaries

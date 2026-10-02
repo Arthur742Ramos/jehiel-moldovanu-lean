@@ -1,137 +1,140 @@
-# M0 Research Note: Jehiel–Moldovanu Impossibility (2026-10-02)
+# A sharp finite welfare–incentive frontier with interdependent values
 
-## Paper
+Arthur Freitas Ramos, David Barros Hulak, Ruy Jose Guerra Barretto de Queiroz
 
-Philippe Jehiel & Benny Moldovanu (2001), "Efficient Design with Interdependent
-Valuations," *Econometrica* 69(5), 1237–1259. DOI: 10.1111/1468-0262.00240.
+## Mathematical scope
 
-## Main result (continuous version)
+Two agents compete for one object. Agent i observes a pair of binary signals
+(s_i,h_i). When i receives the object, its value is a s_i + b h_j, where j
+is the other agent; a>0 and b>a are arbitrary real parameters. A nonrecipient
+has zero value. The four types of each agent are independent and uniform.
+A direct mechanism chooses a lottery at each report profile and real
+transfers received by each agent. Utility is quasi-linear. There are no
+participation constraints or restrictions on transfer magnitude.
 
-In a social choice setting with interdependent valuations (informational and
-allocative externalities), efficient Bayes–Nash incentive compatible mechanisms
-exist only if a "congruence condition" relating private and social rates of
-information substitution holds. With multidimensional signals, this is an
-integrability constraint that generically fails (holds only if values are
-private or under symmetry). With one-dimensional signals it reduces to
-monotonicity and can generically hold.
+Let ε be a uniform upper bound on the interim utility gain from any
+misreport. Let D be ex-ante loss relative to the welfare-maximizing allocation,
+with expectation over all sixteen equally likely profiles and the mechanism's
+lottery. For every mechanism,
 
-## Finite formalization plan
+    (b-a) ε + 2a D ≥ a(b-a)/8.
 
-This is the impossibility flip side of the AGV arc: AGV showed efficiency + BIC
-+ budget balance ARE jointly possible with independent one-dimensional types;
-Jehiel–Moldovanu shows they become impossible with multidimensional types.
+For every θ in [0,1], an ex-post budget-balanced mechanism attains equality,
+with ε=a(1-θ)/8 and D=(b-a)θ/16. Consequently, for nonnegative error and
+welfare-loss budgets, such a budget-balanced mechanism exists if and only if
+the displayed inequality holds. Exact Bayesian incentive compatibility has
+minimum expected welfare loss (b-a)/16. Exact efficiency has minimum uniform
+incentive error a/8. This is a family with a varying relative externality gap:
+changing b/a changes the welfare/error slope, so the result is not simply a
+rescaling of the former a=1,b=2 impossibility example.
 
-### Setting (finite)
+## Lower bound
 
-- 2 agents (Fin 2), 1 indivisible object, X = Fin 2 (who gets it).
-- Each agent i has a TWO-DIMENSIONAL binary type: t_i = (a_i, b_i) ∈ {L,H}².
-- INTERDEPENDENT values:
-  - v_1(t) = A(a_1) + c * B(b_2)  [own a-signal + other's b-signal]
-  - v_2(t) = A(a_2) + c * B(b_1)
-  with A(H) > A(L) ≥ 0, B(H) > B(L) ≥ 0, c > 0.
-- Independent priors: uniform on {L,H}² for each agent.
+Write q(s,o) for agent zero's winning probability at the reported profile.
+Consider the two deviations FF→TT and TT→FF for each agent. A type's received
+transfer depends on its report and its opponent's report, while the
+opponent's distribution is independent of the true type. Thus the transfers
+cancel in the sum of the two inequalities for each agent. The combined
+value-only cycle sum C is at least −4ε.
 
-The b_i signal is the multidimensionality: it is payoff-irrelevant to agent i
-(does not enter v_i) but payoff-relevant to the other agent (enters v_j).
-This is the finite analog of the paper's multidimensional-signal setting.
+Define r(FF)=−a/4, r(TT)=a/4, r(FT)=r(TF)=0. Direct finite-sum algebra gives
 
-### Theorem (finite JM impossibility)
+    C = Σ_(s,o) (r(s)−r(o)) q(s,o).
 
-For suitable explicit (A, B, c) — to be determined, with A(H)-A(L),
-B(H)-B(L), c chosen so the cycle below bites — there is NO mechanism (x, p)
-that is simultaneously:
-1. Ex post efficient: x(t) ∈ argmax_{k ∈ Fin 2} v_k(t) for all t.
-2. Bayesian incentive compatible (interim, with truthful others).
-3. Ex post budget balanced: p_1(t) + p_2(t) = 0 for all t.
+For a symmetric efficient rule (splitting ties equally), C=−a/2. At each of
+the sixteen profiles, with z in [0,1], the following pointwise inequality
+holds, where e is that efficient winning probability, W_k is the welfare
+from giving the object to k, and M=max(W_0,W_1):
 
-### Proof skeleton (discrete congruence / cycle condition)
+    (b-a)(r(s)−r(o))z
+      ≤ (b-a)(r(s)−r(o))e
+        + (a/2)(M−zW_0−(1−z)W_1).
 
-The paper's integrability (congruence) condition becomes a CYCLE inequality in
-the finite setting — directly analogous to Rochet's cyclic monotonicity:
+Summing gives (b-a)C≤−a(b-a)/2+8aD. Since b>a, combine this with C≥−4ε
+to obtain the theorem. The inequality covers all lotteries, including
+inefficient rules and every tie choice. It does not assume budget balance.
+The coefficient signs matter: losing welfare at some profiles makes C more
+negative, so an absolute coefficient bound would lose the sharp constant.
 
-1. Efficiency pins down x = xmax (welfare-maximizing rule). This is forced.
-2. BIC for agent 1: for true type s and report r,
-   U_1(r|s) ≤ U_1(s|s), where U is interim expected utility.
-3. Consider the 4-cycle in agent 1's type space:
-   (L,L) → (H,L) → (H,H) → (L,H) → (L,L).
-   Summing the four BIC inequalities around this cycle, the transfer terms
-   telescope (each p_1 term appears once positively, once negatively).
-4. What remains is a pure efficiency condition: a sum of value-difference
-   terms that must be ≥ 0 for BIC but is < 0 given the interdependent values
-   and the efficient allocation rule. Contradiction.
-5. Budget balance is not even needed for the core contradiction (it
-   strengthens the result); the cycle already rules out efficient + BIC.
+## Attaining mechanism
 
-The key calculation: because b_1 does not enter v_1, agent 1's payoff from
-misreporting b_1 depends ONLY on how the report changes the allocation x
-(which affects whether agent 1 gets the object) and the transfer. Efficiency
-makes x sensitive to b_1 (since b_1 enters v_2), but BIC requires agent 1 to
-not exploit this. The 4-cycle exposes the inconsistency.
+Use the symmetric efficient lottery except at the two profiles (FF,TT) and
+(TT,FF). Set their agent-zero winning probabilities to 1−θ/2 and θ/2,
+respectively. Each crossing profile has welfare gap b−a, giving D=(b-a)θ/16.
 
-### Why this is faithful to the paper
+Use the same report potential for both agents, in the order FF,FT,TF,TT:
 
-- The paper's congruence condition IS an integrability (path-independence)
-  condition; the 4-cycle is its discrete form.
-- Multidimensionality is essential: with 1D types (just a_i), the cycle
-  collapses and AGV-style possibility returns.
-- Interdependence is essential: if b_i entered no one's value, the signal
-  would be irrelevant and the cycle would be vacuous.
+    z = (−b/2+bθ/8, −b/8, −3a/8−b/2, a(1−θ)/8−3b/8).
 
-### Deliverables
+Agent i receives p_i(t)=z(t_i)−z(t_j). Transfers sum to zero at every report
+profile. Each interim transfer is z(own report) minus a report-independent
+constant. For either agent, the matrix of ε plus truthful utility minus
+misreport utility is
 
-- `JM/Defs.lean`: types, values, welfare, xmax, interim utility, IsEfficient,
-  IsBIC, IsBudgetBalanced (reuse AGV patterns with interdependent values).
-- `JM/Impossibility.lean`: the cycle lemma + main impossibility theorem.
-- Comparator: `JM.jehiel_moldovanu_impossibility` (+ supporting lemmas).
-- Axioms ⊆ {propext, Classical.choice, Quot.sound}; zero sorries.
+| True type / Report | FF | FT | TF | TT |
+|---|---:|---:|---:|---:|
+| FF | E | E | F | 0 |
+| FT | E | E | F | 0 |
+| TF | 0 | F | E | E |
+| TT | 0 | F | E | E |
 
-## Prior art
+Here E=a(1−θ)/8 and F=a(4−θ)/8. All entries are nonnegative on [0,1], and
+some deviations gain exactly E. The asserted incentive error is therefore
+the actual maximum, not merely a loose sufficient bound.
 
-Palomar registry search performed 2026-10-02 for "jehiel", "moldovanu",
-"interdependent valuations", "multidimensional": zero results on all four
-queries. (Sanity check: "mechanism design" returns 1 result, Arthur's
-revenue-equivalence-lean, confirming the registry has mechanism-design
-content but nothing Jehiel-Moldovanu-related.) This records only that dated
-registry search.
+## Reusable general theorem
 
-## M1 findings (2026-10-02)
+JM.Quantitative treats arbitrary finite own types T, opposing states O, and
+outcomes K. It allows arbitrary real payoff and welfare tables, report-indexed
+lotteries, and transfers. A balanced nonnegative flow ℓ of deviations cancels
+expected transfers. Its coefficient is explicitly computed from payoffs:
 
-- `JM/Defs.lean` written (Codex) and verified to build green (`lake build`,
-  3000 jobs, exit 0; only the intended theorem-level `sorry` plus a
-  deprecated-import warning). Concrete parameters fixed:
-  - `valA(true) = 1` (gap 1), `valB(true) = 2` (gap 2), coefficient `c = 1`.
-  - Agent i's value when winning: `a_i + b_{other(i)}` (loser gets 0).
-  - `interimUtil` evaluates value at the true profile, allocation/payment at
-    the reported profile (AGV pattern adapted).
-- The useful cycle is the REVERSE of the M0 proposal:
-  `(F,F) -> (F,T) -> (T,T) -> (T,F) -> (F,F)` (indexed cyclically by `Fin 4`).
-- Efficiency ties occur at exactly 4 diagonal profiles
-  `(t, t)` for `t` in `(F,F), (F,T), (T,T), (T,F)` (equal winning values);
-  all other profiles have a forced winner.
-- `scripts/verify_cycle.py` (written independently, not by Codex) enumerates
-  all 2^4 = 16 efficient tie-breaking rules and confirms:
-  `S_0 + S_1 = -1/2` for EVERY efficient rule, where `S_i` is agent i's
-  value-only truthful-minus-deviation cycle sum under uniform priors.
-- Proof plan (M2-M4): BIC gives `S_i(p) >= 0` per agent (each cycle term is a
-  truthful-vs-deviation comparison); transfer terms telescope around the
-  closed cycle (cyclic reindexing), so `S_i(p) = S_i(0)`; the computation
-  gives `S_0(0) + S_1(0) = -1/2 < 0`, contradiction. In Lean the last step
-  is a 16-way case split on the diagonal ties plus `decide`/`norm_num`
-  (all profile evaluations are concrete). Budget balance is a hypothesis but
-  is not needed for the contradiction.
+    c(r,o,k)=Σ_s [ℓ(r,s)v(r,o,k)−ℓ(s,r)v(s,o,k)].
 
-## M2-M4 proof (2026-10-02)
+If α and ν have unit mass, ν is nonnegative, q is a nonnegative normalized
+lottery, and the pointwise certificate
 
-- Codex proved `JM.jehiel_moldovanu_impossibility` (26 helper lemmas, same
-  file, statement unchanged). Independently verified: `lake build` green
-  (3000 jobs, exit 0), zero `sorry` in sources, `#print axioms` =
-  `[propext, Classical.choice, Quot.sound]`.
-- Proof structure: (1) `transfer_telescope`: per-agent cycle sums with
-  arbitrary transfers equal the zero-transfer `cycleSum` (transfer terms
-  telescope around the closed 4-cycle); (2) `cycleSum_nonneg`: BIC forces
-  each agent's cycle sum >= 0; (3) `cycleSum_pair`: for every efficient x,
-  the two agents' value-only cycle sums total -1/2, via 12 forced-winner
-  efficiency lemmas + 16-way case split on the 4 diagonal ties, then
-  concrete computation; (4) `linarith` contradiction.
-- Note: `IsBudgetBalanced` is a hypothesis of the theorem but is not needed
-  for the contradiction (transfer telescoping is per-agent).
+    c(r,o,k) ≤ α(r)[β(g(r,o)−W(r,o,k))−A]
+
+holds at every report/state/outcome, then ε-BIC implies
+
+    A ≤ β·welfareLoss + flowMass(ℓ)·ε.
+
+Opponent beliefs ν do not depend on the true own type. The theorem's algebra
+does not require α≥0 or β≥0; their probability/loss interpretation requires
+those additional semantic conditions. The theorem proves certificate
+soundness, not existence or completeness of such certificates. No claim is
+made that every finite interdependent-value environment is impossible.
+
+## Relation to sources and novelty limits
+
+Jehiel and Moldovanu, “Efficient Design with Interdependent Valuations,”
+Econometrica 69(5), 2001, pp.1237–1259,
+https://doi.org/10.1111/1468-0262.00240. The author-hosted February 20, 2000
+draft at https://www.econ.uni-bonn.de/micro/en/moldovanu/publications-1/fineff3.pdf
+was used to inspect Example 4.2 and Theorem 4.3. This development extends the
+finite analogue of Example 4.2 with an exact quantitative characterization.
+It does not formalize the continuous generic congruence theorem 4.3,
+differentiability, genericity, arbitrary continuous types, nonuniform priors,
+or correlated beliefs. Randomization and unrestricted transfers are already
+part of the source setting; those features alone are not claimed as novel.
+
+Cyclic-monotonicity necessity and linear certificate/duality arguments are
+established mathematics. The authors' earlier Rochet formalization is related
+background, not evidence of novelty here. The sharp finite parametric frontier
+is derived and checked in this development; no priority, publication novelty,
+original-author endorsement, or editorial acceptance is asserted.
+
+## Proof and review status
+
+The library is developed with AI assistance. Separate AI reviewers inspected
+the primary source and independently derived rational/symbolic certificates,
+including every pointwise inequality and every incentive deviation. Their
+reports and reproducible checks accompany the local evidence. This does not
+claim independent human review. Lean compilation, selected contract comparison,
+axiom audits, external kernel replay, and exact pinned Verso rendering are
+recorded separately; none is a hosted Palomar pass or submission authorization.
+
+The former fixed deterministic example remains as a corollary. Its complete
+four-type cycle proof remains in the library as a historical independent
+certificate; the large unselected helper is not included in Challenge.

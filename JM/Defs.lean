@@ -5,7 +5,7 @@ public import Mathlib.Basic.ENNReal.BigOperators
 public import Mathlib.Data.Finset.Max
 public import Mathlib.Data.Fintype.Pi
 public import Mathlib.Data.Fintype.Prod
-public import Mathlib.Data.Real.Basic
+public import Mathlib.Basic.Real.Basic
 public import Mathlib.Logic.Function.Basic
 public import Mathlib.Probability.Distributions.Uniform
 public import Mathlib.Tactic.NormNum
@@ -407,9 +407,9 @@ lemma cycleSum_pair (x : Allocation) (hx : IsEfficient x) :
 
 /-- For this concrete finite instance and independent uniform priors, no
 efficient, Bayesian incentive compatible, budget-balanced mechanism exists.
-M2 will supply the proof; definitions and supporting lemmas have no holes.
+The complete original four-type certificate is retained for comparison.
 -/
-theorem jehiel_moldovanu_impossibility :
+theorem four_cycle_impossibility :
     ∀ (x : Allocation) (p : Transfers),
       IsEfficient x → IsBIC uniformPrior x p → IsBudgetBalanced p → False := by
   intro x p hxEff hxBIC _

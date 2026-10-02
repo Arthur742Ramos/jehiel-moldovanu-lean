@@ -1,30 +1,20 @@
 version: "v0.4"
 project:
-  name: "jehiel-moldovanu-lean"
+  name: "Sharp finite welfare-incentive frontier with interdependent values"
   description: >-
-    Lean 4 formalization of a finite instance of the Jehiel-Moldovanu
-    impossibility theorem (Econometrica 2001): with multidimensional types
-    and interdependent valuations, ex post efficiency, Bayesian incentive
-    compatibility, and budget balance are jointly unattainable. Two agents
-    (Agent := Fin 2) have two-dimensional binary types (T i := Bool x Bool);
-    one object is allocated (winner in X := Fin 2). Agent i's winning value
-    is valA of its own first signal (0 or 1) plus valB of the other agent's
-    second signal (0 or 2), scaled by c = 1; the nonwinner's value is zero.
-    Priors are independent and uniform (uniformPrior). Efficiency is
-    pointwise: IsEfficient x says the allocation maximizes utilitarian
-    welfare at every profile. BIC is interim: IsBIC pi x p says truthful
-    reporting maximizes each agent's interim expected utility at every own
-    type. Budget balance is pointwise: IsBudgetBalanced p says transfers sum
-    to zero at every report profile. The proof is a four-type cycle
-    congruence argument: transfer terms telescope around each agent's closed
-    four-type cycle, BIC forces each agent's cycle sum to be nonnegative,
-    and for every efficient rule the two agents' value-only cycle sums total
-    -1/2 (twelve forced winners off the diagonal; a sixteen-way split over
-    the four diagonal efficiency ties), which is contradictory. Budget
-    balance is a hypothesis of the statement but is not needed for the
-    contradiction, since the telescoping is per-agent. This is a finite
-    instance, not the continuous generic impossibility theorem of the
-    original paper.
+    A sharp parametric finite extension of the Jehiel-Moldovanu example:
+    two agents, one object, independent uniform binary two-dimensional
+    types, own-value gap a>0 and external-value gap b>a. Every randomized
+    epsilon-BIC mechanism with ex-ante welfare loss D satisfies
+    (b-a)*epsilon+2*a*D >= a*(b-a)/8. Explicit ex-post budget-balanced
+    mechanisms attain every frontier point. For nonnegative error and loss
+    budgets this inequality exactly characterizes feasibility. Exact BIC
+    has minimum expected welfare loss (b-a)/16. A reusable balanced-flow
+    certificate theorem covers arbitrary finite own types, opposing states,
+    outcomes, payoff tables and lotteries when its explicit pointwise
+    certificate hypothesis holds. The old fixed deterministic example is
+    retained as a corollary. This is not the original paper's continuous
+    generic congruence theorem; no mathematical novelty claim is made.
   authors:
     - "Arthur Freitas Ramos"
     - "David Barros Hulak"
@@ -45,70 +35,88 @@ sources:
     type: "paper"
     year: 2001
     url: "https://doi.org/10.1111/1468-0262.00240"
-    relationship: "formalizes"
+    relationship: "adapts"
     note: >-
-      The selected contract formalizes a finite instance of the
-      paper's impossibility: with multidimensional (two-dimensional)
-      types and interdependent valuations, no mechanism is
-      simultaneously ex post efficient, Bayesian incentive compatible,
-      and budget balanced. The library proves this for two agents with
-      binary two-dimensional types and independent uniform priors via
-      a four-type cycle congruence argument, the finite analogue of
-      the paper's congruence argument.
+      The finite model is the binary analogue of Example 4.2 in the
+      author-hosted February 20, 2000 draft. The quantitative error/loss
+      bound and attaining transfers are derived here. The continuous
+      congruence theorem 4.3, differentiability and genericity are not
+      formalized. Cycle necessity and linear certificates are established
+      background; no priority or original-author endorsement is claimed.
     author_endorsement: "not-contacted"
 automation:
   methods:
     - method: "AI-assisted Lean proof development"
       system: "OpenAI Codex"
-      role: "Source inspection, proof implementation, compilation, placeholder and axiom audits, and package preparation."
+      role: "Model and proof development, source inspection, local compilation, contract and axiom audits, package preparation."
+    - method: "Independent AI mathematical and source review"
+      system: "OpenAI Codex, separate reviewer agents"
+      role: "Independent rational and symbolic certificates for all pointwise bounds and all deviations; primary-paper scope review."
     - method: "Lean tactic automation"
-      role: "simp, norm_num, linarith, and finite-sum manipulations over Bool x Bool."
+      role: "Finite sums, norm_num, ring, linarith and nlinarith; no trusted computation oracle."
 review:
   status: >-
-    The completed library was reported to build with zero proof placeholders;
-    the capstone theorem was reported to depend only on propext,
-    Classical.choice, and Quot.sound. The proof was developed with AI
-    assistance and mechanically checked. This packaging pass performs
-    source inspection against the final Lean binders. The supplied scripts
-    support subsequent package validation; the official comparator checks
-    the exact contract. No separate independent human review of the proof
-    was performed.
-  human_review: "No independent human review of the proof or original-author endorsement is claimed."
+    Local proof development with separate AI mathematical and primary-source
+    reviews. Exact symbolic and rational checks independently verify the
+    coefficient certificate and all thirty-two incentive inequalities.
+    Local mechanical gates and renderer checks are recorded in the evidence
+    bundle. No hosted exact-SHA verification, Palomar acceptance, submission,
+    mathematical novelty, or independent human review is asserted.
+  human_review: "No independent human proof review or original-author endorsement is claimed."
   limitations: >-
-    Finite instance only: exactly two agents (Fin 2), two-dimensional binary
-    types (Bool x Bool), one object (winner in Fin 2), independent uniform
-    priors. Interdependent values: agent i's winning value is valA of its
-    own first signal plus valB of the other agent's second signal, scaled
-    by c = 1. Efficiency is pointwise (every profile); budget balance is
-    pointwise (every report profile); BIC is interim with respect to
-    uniformPrior. Budget balance is a hypothesis of the theorem but plays
-    no role in the proof. The continuous generic impossibility theorem of
-    the original paper is not formalized.
+    The sharp characterization fixes two agents, one object, binary
+    two-dimensional types, independent uniform priors, and winning value
+    a*own_first_bit+b*other_second_bit, with 0<a<b. Transfers are received,
+    unrestricted real payments. Participation constraints are absent.
+    Welfare loss is expected under the true uniform distribution. Incentive
+    error is a uniform interim bound at every true type/report pair.
+    Budget balance is required for constructive feasibility and is proved
+    ex post; the universal lower bound needs no budget restriction. The
+    reusable general finite theorem proves soundness of a supplied pointwise
+    coefficient bound, not completeness or generic impossibility.
 alignment:
   statements:
+    - lean: "JM.Sharp.welfare_incentive_frontier"
+      description: >-
+        For all real a,b with 0<a and a<b, all profile-indexed probabilities
+        q and transfers p, and all real epsilon, IsLottery q and
+        ApproxBIC a b q p epsilon imply
+        a*(b-a)/8 <= (b-a)*epsilon+2*a*loss a b q.
+        No budget balance, participation or prior variables are assumed;
+        utility and loss fix independent uniform binary types.
+    - lean: "JM.Sharp.frontier_attained"
+      description: >-
+        For every a,b with 0<a<b and theta in [0,1], there exist a lottery
+        and ex-post budget-balanced transfers with incentive error
+        a*(1-theta)/8, exact loss (b-a)*theta/16 and equality in the bound.
+    - lean: "JM.Sharp.feasible_iff"
+      description: >-
+        For all real a,b,epsilon,D with 0<a<b, epsilon>=0 and D>=0,
+        Feasible a b epsilon D is equivalent to the frontier inequality.
+        Feasible existentially requires a valid lottery, ex-post budget
+        balance, epsilon-BIC, and expected loss at most D.
+    - lean: "JM.Quantitative.welfare_incentive_bound"
+      description: >-
+        Arbitrary finite T,O,K and real payoff/welfare tables, normalized
+        weights alpha,nu, nonnegative nu, valid q, nonnegative balanced
+        deviation flow ell, epsilon-BIC and a coefficient bound at every
+        r,o,k imply A <= beta*welfareLoss+flowMass(ell)*epsilon. The algebra
+        does not require alpha nonnegative or beta nonnegative; interpreting
+        alpha as an own prior adds nonnegativity. Opponent weights are
+        independent of the true own type. This theorem does not supply
+        certificates or formalize the continuous generic result.
     - lean: "JM.jehiel_moldovanu_impossibility"
       description: >-
-        The exact binders are (x : JM.Allocation) (p : JM.Transfers), where
-        JM.Allocation := Profile -> X and JM.Transfers := Agent -> Profile
-        -> R. The conclusion is
-        JM.IsEfficient x -> JM.IsBIC JM.uniformPrior x p ->
-        JM.IsBudgetBalanced p -> False.
-        IsEfficient is pointwise welfare maximization at every profile;
-        IsBIC is the interim incentive condition specialized to the
-        uniform independent prior uniformPrior : (i : Agent) -> PMF (T i);
-        IsBudgetBalanced says transfers sum to zero at every report
-        profile. No prior is taken as an argument: the statement fixes
-        uniformPrior. The theorem is proved by a four-type cycle
-        congruence: transfer terms telescope around each agent's closed
-        four-type cycle (cycleSum), BIC makes each agent's cycle sum
-        nonnegative, and every efficient rule yields a combined value-only
-        cycle sum of -1/2, contradicting nonnegativity by linarith.
+        The unchanged fixed deterministic contract quantifies x,p and says
+        IsEfficient x -> IsBIC uniformPrior x p -> IsBudgetBalanced p -> False.
+        It is now deduced from the a=1,b=2 randomized frontier by embedding
+        deterministic allocations, equating utilities and proving zero loss.
 related_formalizations:
-  - id: "palomar-registry-search-2026-10-02"
-    title: "Dated Palomar registry search for Jehiel-Moldovanu formalizations"
-    relationship: "none-found-in-registry-search"
+  - id: "PALOMAR-2026-10-01-000016"
+    title: "Rochet Cyclic-Monotonicity Characterization"
+    relationship: "related-cycle-necessity-background"
     note: >-
-      The Palomar registry search performed on 2026-10-02 for "jehiel",
-      "moldovanu", "interdependent valuations", and "multidimensional"
-      returned zero results. This records only that dated registry search
-      and makes no claim about formalizations outside its results.
+      The same formalization authors' earlier finite cyclic-monotonicity
+      work is relevant background. This artifact's substantive additional
+      scope is the exact parametric welfare/incentive characterization and
+      its budget-balanced attaining mechanism, not cycle necessity alone.

@@ -1,78 +1,80 @@
-"""Generate Challenge.lean by verbatim copy from the JM library.
-
-Copies the module body (variable line, all definitions, required helper lemmas) byte-for-byte
-from JM/Defs.lean, so that Lean's variable auto-binding produces syntactically
-identical declaration types. Only the comparator-selected theorem proof is
-replaced with a `sorry` placeholder. The unselected cycleSum_pair helper is omitted
-from this reference surface; its full proof remains in JM/Defs.lean.
+"""Generate an independent, compact Challenge with genuine verbatim definitions.
+Only selected theorem proofs are holes. Supporting proof implementations stay
+in the reusable library. No candidate-local modules are imported by Challenge.
 """
-import re
 import json
+import re
 from pathlib import Path
-
 ROOT = Path(__file__).resolve().parent.parent
-THEOREMS = ["jehiel_moldovanu_impossibility"]
 
+SOURCES = [
+    ('JM/Defs.lean', 'JM'),
+    ('JM/Quantitative.lean', 'JM.Quantitative'),
+    ('JM/Sharp.lean', 'JM.Sharp'),
+    ('JM/Frontier.lean', 'JM.Sharp'),
+    ('JM/Corollaries.lean', 'JM'),
+]
+THEOREMS = [
+    'JM.Quantitative.welfare_incentive_bound',
+    'JM.Sharp.welfare_incentive_frontier',
+    'JM.Sharp.frontier_attained',
+    'JM.Sharp.feasible_iff',
+    'JM.Sharp.exact_bic_loss',
+    'JM.Sharp.exact_bic_attained',
+    'JM.jehiel_moldovanu_impossibility',
+]
 
-def statement_sorry(source: str, name: str) -> str:
-    match = re.search(r"(?m)^theorem " + re.escape(name) + r"\b[\s\S]*?:=", source)
-    assert match, f"Missing theorem statement: {name}"
-    return match.group(0) + " by\n  sorry\n"
+def declarations(src):
+    # These modules use ordinary top-level declarations and no mutual blocks.
+    matches = list(re.finditer(r'(?m)^(abbrev|def|theorem|lemma) (\w+)\b', src))
+    for ix,m in enumerate(matches):
+        end = matches[ix+1].start() if ix+1<len(matches) else src.rindex('\nend\n')
+        raw = src[m.start():end]
+        # Strip the next declaration's documentation / local options.
+        raw = re.split(r'\n/--|\nset_option ',raw,maxsplit=1)[0].rstrip()
+        yield m.group(1),m.group(2),raw
 
+def render():
+    out=['module', '', 'public import Mathlib.Algebra.BigOperators.Group.Finset.Basic',
+         'public import Mathlib.Basic.ENNReal.BigOperators', 'public import Mathlib.Data.Finset.Max',
+         'public import Mathlib.Data.Fintype.Pi', 'public import Mathlib.Data.Fintype.Prod',
+         'public import Mathlib.Basic.Real.Basic', 'public import Mathlib.Logic.Function.Basic',
+         'public import Mathlib.Probability.Distributions.Uniform', 'public import Mathlib.Tactic', '',
+         '/-! Standalone comparison surface for a sharp finite parametric welfare/incentive frontier.',
+         'Two agents have independent uniform binary two-dimensional types and winning values',
+         'a*own_first_bit+b*other_second_bit, with 0<a<b. Randomized epsilon-BIC mechanisms',
+         'satisfy (b-a)*epsilon+2*a*loss >= a*(b-a)/8; explicit budget-balanced mechanisms',
+         'attain the bound. This is a finite extension, not the continuous generic JM theorem.',
+         'Definitions are genuine verbatim library bodies; only selected theorem proofs are holes.',
+         'Proofs and independent AI reviews are in the local development/evidence. No human review,',
+         'novelty, hosted pass, submission or editorial acceptance is claimed. -/', '',
+         '@[expose] public section', '']
+    defs=[];found=[]
+    for file,ns in SOURCES:
+        src=(ROOT/file).read_text()
+        out += [f'namespace {ns}', 'open scoped BigOperators NNReal', 'noncomputable section', '']
+        if ns=='JM.Quantitative':
+            out += ['variable {T O K : Type*} [Fintype T] [Fintype O] [Fintype K]', '']
+        for kind,name,raw in declarations(src):
+            fullname=ns+'.'+name
+            if kind in ('def','abbrev') or fullname=='JM.argmax_nonempty':
+                if file=='JM/Defs.lean' and name=='weight':
+                    out+=['variable (π : (i : Agent) → PMF (T i))', '']
+                out += [raw,'']
+                if kind=='def': defs.append(fullname)
+            elif fullname in THEOREMS:
+                statement=raw[:raw.index(':=')].rstrip()
+                out += [statement+' := by\n  sorry','']
+                found.append(fullname)
+        out+=['end',f'end {ns}','']
+    assert set(found)==set(THEOREMS),(found,THEOREMS)
+    config={'challenge_module':'Challenge','solution_module':'Solution',
+            'definition_names':defs,'theorem_names':THEOREMS,
+            'permitted_axioms':['propext','Quot.sound','Classical.choice']}
+    return '\n'.join(out),config
 
-def render() -> str:
-    src = (ROOT / "JM" / "Defs.lean").read_text()
-    # Imports block: the public imports at the top of the library file
-    # (without the leading `module` line, which the header already emits).
-    imports = src[: src.index("@[expose] public section")]
-    assert imports.startswith("module\n"), "unexpected library header"
-    imports = imports[len("module\n"):].lstrip("\n")
-    namespace = "namespace JM\n"
-    start = src.index(namespace) + len(namespace)
-    # Body block: everything from after `namespace JM` up to the comparator theorem.
-    stop = src.index("theorem jehiel_moldovanu_impossibility", start)
-    body = src[start:stop].rstrip() + "\n\n"
-    config = json.loads((ROOT / "comparator.json").read_text())
-    assert "JM.cycleSum_pair" not in config["theorem_names"]
-    helper_start = body.index("/-- Efficiency fixes twelve profiles;")
-    helper_end = body.index("\n/--", helper_start + 1)
-    body = body[:helper_start] + body[helper_end + 1:]
-    sorry_thm = statement_sorry(src, "jehiel_moldovanu_impossibility")
-    header = '''module
-
-%s
-/-!
-Compact comparison surface for the finite Jehiel-Moldovanu impossibility instance.
-All definitions below are genuine, with their exact library bodies, copied
-verbatim (including the variable binders) so that declaration types match
-the library syntactically.
-Only the comparator-selected theorem proof is a deliberate statement hole.
-The unselected cycleSum_pair helper is omitted from this reference surface:
-its expanded proof states exceed the renderer's per-file size limit.
-The complete, mechanically checked proof is in the JM library imported by
-Solution. The proof was developed with AI assistance and then independently
-compiled, audited for placeholders and axioms, and comparator-checked; no
-separate independent human review of the proof was performed.
-The official comparator checks its exact contract.
--/
-
-@[expose] public section
-
-namespace JM
-
-open scoped BigOperators NNReal
-
-''' % imports
-    # The library wraps the body in `noncomputable section ... end`, with the
-    # section's `end` placed after the comparator theorem. Keep the
-    # sorry-theorem inside the section (verbatim structure), then close it.
-    return header + body + sorry_thm + "\nend\n\nend JM\n"
-
-
-def main() -> None:
-    (ROOT / "Challenge.lean").write_text(render())
-    print("wrote Challenge.lean")
-
-
-if __name__ == "__main__":
-    main()
+if __name__=='__main__':
+    source,config=render()
+    (ROOT/'Challenge.lean').write_text(source)
+    (ROOT/'comparator.json').write_text(json.dumps(config,indent=2)+'\n')
+    print('Challenge:',len(source.encode()),'bytes,',len(source.splitlines()),'lines; selected',len(config['definition_names']),'definitions and',len(THEOREMS),'theorems')
