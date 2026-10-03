@@ -1,8 +1,6 @@
 name: Pinned Challenge rendering
 
 on:
-  push:
-    branches: [fix/challenge-render-size]
   workflow_dispatch:
 
 permissions:

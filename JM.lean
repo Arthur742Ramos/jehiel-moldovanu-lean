@@ -1,3 +1,5 @@
 module
 
-public import JM.Defs
+public import JM.Corollaries
+
+public import JM.ContinuousAuction

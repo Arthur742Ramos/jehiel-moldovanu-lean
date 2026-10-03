@@ -1,65 +1,56 @@
-# Jehiel–Moldovanu Impossibility in Lean 4
+# Continuous binary implementation and a sharp finite frontier
 
-Lean 4 / Mathlib formalization of a **finite instance** of the Jehiel–Moldovanu
-impossibility theorem (Jehiel & Moldovanu, *Econometrica* 69(5), 1237–1259, 2001;
-DOI `10.1111/1468-0262.00240`): with multidimensional types and interdependent
-valuations, ex post efficiency, Bayesian incentive compatibility, and budget
-balance are jointly unattainable. This is the impossibility flip side of the
-AGV possibility result.
 
-## The instance
+The main continuous-domain result characterizes efficient Bayesian
+implementation with two alternatives. On an own-type domain containing an
+open ball, a nonzero social coefficient and one active welfare cut force
+private coefficients to be a nonnegative multiple of social coefficients.
+The theorem covers arbitrary independent opponent probability laws,
+including atoms, and unrestricted integrable received transfers. Explicit
+transfers establish the converse with truthful opponents held fixed.
 
-- Two agents (`Agent := Fin 2`), each with a two-dimensional binary type
-  (`T i := Bool × Bool`).
-- One object; the winner is in `X := Fin 2`.
-- Agent `i`'s winning value is `valA` of its own first signal (`0` or `1`) plus
-  `valB` of the other agent's second signal (`0` or `2`), scaled by `c = 1`;
-  the nonwinner's value is zero. Values are interdependent.
-- Priors are independent and uniform (`uniformPrior`).
+The concrete continuous auction uses actual independent uniform-square
+signals and winning value a*own_first_signal+b*other_second_signal.
+Efficiency is impossible even with only agent 0 incentive compatibility
+for every a,b>0. See [the continuous note](M1-continuous-note.md) for exact
+measurability, integrability, domain, tie and prior assumptions.
 
-## Main theorem
+A separate finite theorem retains binary types, a>0,b>a and independent
+uniform priors.
+Every ε-BIC mechanism with expected welfare loss D satisfies
 
-```lean
-theorem JM.jehiel_moldovanu_impossibility :
-  ∀ (x : JM.Allocation) (p : JM.Transfers),
-    JM.IsEfficient x → JM.IsBIC JM.uniformPrior x p → JM.IsBudgetBalanced p → False
-```
+    (b-a) ε + 2a D ≥ a(b-a)/8.
 
-- `IsEfficient` is pointwise: the allocation maximizes utilitarian welfare at
-  every profile.
-- `IsBIC` is interim: truthful reporting maximizes each agent's interim
-  expected utility at every own type, under the fixed prior `uniformPrior`.
-- `IsBudgetBalanced` is pointwise: transfers sum to zero at every report
-  profile.
-- The statement takes no prior argument; the prior is fixed to `uniformPrior`.
+Budget-balanced mechanisms attain every frontier point. For nonnegative
+error and loss budgets the inequality exactly characterizes feasibility.
+Exact BIC has minimum welfare loss (b-a)/16. The original a=1,b=2,
+deterministic impossibility theorem is retained as a corollary.
 
-## Proof idea
+The continuous theorem is a binary congruence subtheorem of the
+Jehiel–Moldovanu program. It does not prove the arbitrary-alternative
+Theorem 4.3 or genericity. The finite frontier is a separate quantitative
+extension of the analogue of Example 4.2. No mathematical novelty or editorial acceptance is claimed.
+See [the research note](M0-research-note.md) for definitions, derivation,
+attaining transfers, source relation, and scope limits.
 
-A four-type cycle congruence argument over the cycle
-`(false,false) → (false,true) → (true,true) → (true,false) → (false,false)`:
+- `JM/Defs.lean`: the original model and full four-type certificate.
+- `JM/Quantitative.lean`: reusable balanced-flow certificate soundness.
+- `JM/Sharp.lean`: parametric sharp bound and budget-balanced witnesses.
+- `JM/Frontier.lean`: complete feasibility and exact-BIC welfare cost.
+- `JM/Corollaries.lean`: original deterministic contract as a corollary.
+- `JM/Binary.lean`: continuous-domain necessity and explicit-transfer equivalence.
+- `JM/ContinuousAuction.lean`: genuine uniform-square law, value/welfare bridges and impossibility.
+- `Challenge.lean`: standalone definitions and selected statement holes.
+- `Solution.lean`: imports the admission-free reusable library.
 
-1. Transfer terms telescope around each agent's closed four-type cycle, so
-   each agent's cycle sum with arbitrary transfers equals the zero-transfer
-   `cycleSum`.
-2. BIC forces each agent's cycle sum to be nonnegative.
-3. For every efficient rule, the two agents' value-only cycle sums total
-   `-1/2`: twelve profiles have forced winners, and the four diagonal
-   profiles are efficiency ties, handled by a sixteen-way case split
-   (`scripts/verify_cycle.py` independently enumerates all sixteen
-   tie-breaking choices and checks the sum).
-4. The two facts contradict each other (`linarith`).
+Build with the pinned toolchain and Mathlib version:
 
-Budget balance is a hypothesis of the statement but is not needed for the
-contradiction, since the telescoping is per-agent. This is a finite instance,
-not the continuous generic impossibility theorem of the original paper.
+    LEAN_NUM_THREADS=1 lake build JM Challenge Solution
 
-## Status
+The scripts and evidence distinguish local functional verification from
+exact-SHA hosted gates. The dispatch-only proof and rendering workflows use
+the pinned official pipeline. Publication and merge have been authorized;
+Palomar intake and registration require separate authorization. Hosted results
+must be checked against their exact commit and authoritative artifacts.
 
-Builds green with `lake build` (Lean v4.35.0-rc2); zero `sorry` in the library;
-the theorem depends only on `propext`, `Classical.choice`, and `Quot.sound`.
-
-Prior art: a Palomar registry search on 2026-10-02 for "jehiel", "moldovanu",
-"interdependent valuations", and "multidimensional" returned zero results.
-
-Authors: Arthur Freitas Ramos, David Barros Hulak,
-Ruy Jose Guerra Barretto de Queiroz. License: BSD-3-Clause.
+Authors: Arthur Freitas Ramos, David Barros Hulak, Ruy Jose Guerra Barretto de Queiroz.
