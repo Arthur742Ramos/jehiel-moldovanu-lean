@@ -157,4 +157,6 @@ local implementation modules. Independent mathematical, exact-source and
 prose-to-binder reviews and local Comparator, three-kernel and pinned renderer
 results belong to the accompanying evidence bundle. Passing those gates is
 not a hosted exact-SHA pass, editorial acceptance, registration, publication
-readiness, or an independent human referee report. Local development only.
+readiness, or an independent human referee report. Publication and merge
+checks are recorded separately against exact immutable commits; Palomar
+intake and registration are outside that authorization.

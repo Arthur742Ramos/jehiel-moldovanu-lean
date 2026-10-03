@@ -47,8 +47,10 @@ Build with the pinned toolchain and Mathlib version:
 
     LEAN_NUM_THREADS=1 lake build JM Challenge Solution
 
-The scripts and evidence distinguish local functional verification from the
-later required exact-SHA hosted gates. The workflow is prepared locally only;
-no push, dispatch, registry submission, or external change is authorized.
+The scripts and evidence distinguish local functional verification from
+exact-SHA hosted gates. The dispatch-only proof and rendering workflows use
+the pinned official pipeline. Publication and merge have been authorized;
+Palomar intake and registration require separate authorization. Hosted results
+must be checked against their exact commit and authoritative artifacts.
 
 Authors: Arthur Freitas Ramos, David Barros Hulak, Ruy Jose Guerra Barretto de Queiroz.

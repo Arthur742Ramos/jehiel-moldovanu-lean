@@ -1,7 +1,7 @@
 name: Authorized exact-SHA Palomar full preflight
 run-name: Full preflight for ${{ github.sha }}
 
-# Prepared locally. Running this requires separate publication/dispatch approval.
+# Dispatch-only exact-commit gate; publication/merge authorization is recorded separately.
 on:
   workflow_dispatch:
 
